@@ -1,0 +1,53 @@
+{
+  "name": "compact-filters",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Dynamic filter bar and date range picker for React 19 and Tailwind CSS v4, themed with shadcn/ui tokens",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/turkpin/compact-filters.git"
+  },
+  "homepage": "https://github.com/turkpin/compact-filters#readme",
+  "bugs": {
+    "url": "https://github.com/turkpin/compact-filters/issues"
+  },
+  "keywords": [
+    "react",
+    "filter",
+    "filter-bar",
+    "date-range-picker",
+    "tailwindcss",
+    "shadcn"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./dist/index.js",
+    "./date-range": "./dist/date-range.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "npm run build && node --test 'test/**/*.test.js'",
+    "prepublishOnly": "npm test"
+  },
+  "peerDependencies": {
+    "clsx": "^2",
+    "lucide-react": ">=0.400",
+    "radix-ui": "^1",
+    "react": "^19",
+    "tailwind-merge": "^3"
+  },
+  "devDependencies": {
+    "clsx": "^2.1.1",
+    "esbuild": "^0.27.7",
+    "lucide-react": "^1.57.0",
+    "radix-ui": "^1.8.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tailwind-merge": "^3.7.0"
+  }
+}
