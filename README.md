@@ -1,16 +1,26 @@
 # @turkpin/compact-filters
 
+**English** · [Türkçe](https://github.com/turkpin/compact-filters/blob/main/README.tr.md)
+
 A small filter bar for React lists. Pick a filter, choose a value, done.
 
-```
-[⚲ Filter (2) ▾] [Status: Paid ▾ ×] [Date Range: This month ▾ ×] [🔍 Search…        ] Clear
-```
+![The filter bar with two active filters above an invoice list](docs/screenshots/filter-bar.png)
 
 - Filters stay hidden until you use them, so the bar stays small.
 - Each active filter is a chip: click it to change the value, click **×** to remove it.
 - It comes with a date range picker: "Today", "This month", "Last 30 days"… or any two days on a calendar.
 - It speaks Turkish and English.
 - It is light: about 15 kB, no icon library, and it uses your app's colors.
+
+## See it
+
+| Pick a filter | Search a long list |
+|---|---|
+| ![The Filter menu](docs/screenshots/filter-menu.png) | ![A customer list with a search box](docs/screenshots/filter-options.png) |
+| **Pick dates** | **Dark mode** |
+| ![The date range picker](docs/screenshots/date-range.png) | ![The filter bar in dark mode](docs/screenshots/dark.png) |
+| **Turkish** | **On a phone** |
+| ![The filter bar in Turkish](docs/screenshots/turkish.png) | ![The date picker on a phone](docs/screenshots/mobile.png) |
 
 ## 1. Install
 
@@ -233,6 +243,16 @@ npm test        # builds, then runs the tests
 ```
 
 The code is in `src/`. `npm run build` makes `dist/` with esbuild.
+
+### Try it in a browser
+
+```sh
+npm run demo    # then open demo/index.html
+```
+
+The demo is a small invoice list. Add `?locale=tr` or `?theme=dark` to the address to see Turkish or dark mode.
+
+`npm run screenshots` takes the pictures in this README again. It needs Google Chrome.
 
 ### Send changes
 
