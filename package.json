@@ -1,5 +1,5 @@
 {
-  "name": "compact-filters",
+  "name": "@turkpin/compact-filters",
   "version": "0.1.0",
   "private": false,
   "description": "Dynamic filter bar and date range picker for React 19 and Tailwind CSS v4, themed with shadcn/ui tokens",
@@ -49,5 +49,11 @@
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "tailwind-merge": "^3.7.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
