@@ -4,7 +4,7 @@
 
 A small filter bar for React lists. Pick a filter, choose a value, done.
 
-![The filter bar with two active filters above an invoice list](docs/screenshots/filter-bar.png)
+![The filter bar with two active filters above an invoice list](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/filter-bar.png)
 
 - Filters stay hidden until you use them, so the bar stays small.
 - Each active filter is a chip: click it to change the value, click **×** to remove it.
@@ -16,11 +16,11 @@ A small filter bar for React lists. Pick a filter, choose a value, done.
 
 | Pick a filter | Search a long list |
 |---|---|
-| ![The Filter menu](docs/screenshots/filter-menu.png) | ![A customer list with a search box](docs/screenshots/filter-options.png) |
+| ![The Filter menu](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/filter-menu.png) | ![A customer list with a search box](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/filter-options.png) |
 | **Pick dates** | **Dark mode** |
-| ![The date range picker](docs/screenshots/date-range.png) | ![The filter bar in dark mode](docs/screenshots/dark.png) |
+| ![The date range picker](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/date-range.png) | ![The filter bar in dark mode](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/dark.png) |
 | **Turkish** | **On a phone** |
-| ![The filter bar in Turkish](docs/screenshots/turkish.png) | ![The date picker on a phone](docs/screenshots/mobile.png) |
+| ![The filter bar in Turkish](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/turkish.png) | ![The date picker on a phone](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/mobile.png) |
 
 ## 1. Install
 
