@@ -1,5 +1,29 @@
-node_modules
-dist
-.DS_Store
+# Dependencies
+node_modules/
+
+# Build output (made by npm run build / npm run demo)
+dist/
+demo/dist/
+_site/
+
+# npm pack output
 *.tgz
-demo/dist
+
+# Logs
+*.log
+npm-debug.log*
+
+# Secrets and local settings, never commit these
+.env
+.env.*
+.npmrc
+
+# Test and coverage output
+coverage/
+test-results/
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
