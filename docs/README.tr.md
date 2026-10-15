@@ -265,15 +265,21 @@ Aynı sayfa [canlı demo](https://turkpin.github.io/compact-filters/?locale=tr) 
 
 ### Yeni sürüm çıkar
 
-1. `main` üzerinde sürümü artır ve gönder:
-   ```sh
-   npm version patch   # ya da minor / major
-   git push upstream main --follow-tags
-   ```
-2. Yeni tag'den bir GitHub release oluştur: `gh release create v0.1.1 --generate-notes`
-3. GitHub Actions test eder ve npm'e yayınlar.
+`main` ve `dev` yalnızca pull request ile değişiklik alır, bu yüzden sürüm de bir PR ile girer.
 
-Repoda bir `NPM_TOKEN` secret'ı olmalı: `@turkpin` altına yayın yapabilen bir npm token'ı.
+1. Fork'unun `dev` branch'inde sürümü tag oluşturmadan artır:
+   ```sh
+   npm version patch --no-git-tag-version   # ya da minor / major
+   git commit -am "(chore) package: 0.1.1"
+   ```
+2. Pull request'lerle `main`'e taşı: kendi `dev`'in → `turkpin:dev` → `main`.
+3. `main` üzerinde bir GitHub release oluştur. Tag'i de o oluşturur:
+   ```sh
+   gh release create v0.1.1 --repo turkpin/compact-filters --target main --generate-notes
+   ```
+4. Bir yönetici Actions sekmesinde **npm** yayınını onaylar. GitHub Actions test eder ve npm'e yayınlar.
+
+Release tag'i `package.json`'daki sürümle aynı olmalı (`v0.1.1` ↔ `0.1.1`), yoksa yayın durur. npm token'ı **npm** ortamının `NPM_TOKEN` secret'ıdır.
 
 ## Lisans
 
