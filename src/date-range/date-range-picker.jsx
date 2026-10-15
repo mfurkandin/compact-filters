@@ -126,20 +126,29 @@ function getLeftMonth(to) {
   return startOfMonth(twoMonths ? addMonths(to, -1) : to);
 }
 
-export function useDateRangeFormatters(locale = "tr") {
-  return useMemo(() => {
+// Intl formatters are costly to create, so each locale builds them once
+const formattersCache = new Map();
+
+function getDateRangeFormatters(locale) {
+  if (!formattersCache.has(locale)) {
     const intlLocale = getIntlLocale(locale);
     const weekday = new Intl.DateTimeFormat(intlLocale, { weekday: "short" });
 
-    return {
+    formattersCache.set(locale, {
       short: new Intl.DateTimeFormat(intlLocale, { day: "2-digit", month: "2-digit", year: "numeric" }),
       full: new Intl.DateTimeFormat(intlLocale, { day: "numeric", month: "long", year: "numeric", weekday: "long" }),
       month: new Intl.DateTimeFormat(intlLocale, { month: "long", year: "numeric" }),
       weekdays: Array.from({ length: 7 }, (_, index) =>
         weekday.format(fromIsoDate(addDays(WEEK_REFERENCE_MONDAY, index))),
       ),
-    };
-  }, [locale]);
+    });
+  }
+
+  return formattersCache.get(locale);
+}
+
+export function useDateRangeFormatters(locale = "tr") {
+  return getDateRangeFormatters(locale);
 }
 
 /**
