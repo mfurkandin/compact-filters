@@ -9,7 +9,6 @@ const shared = {
   target: "es2022",
   outdir: "dist",
   jsx: "automatic",
-  sourcemap: true,
   // Peer dependencies come from the app
   external: Object.keys(pkg.peerDependencies ?? {}).flatMap((name) => [name, `${name}/*`]),
   logLevel: "info",
