@@ -1,62 +1,64 @@
 # @turkpin/compact-filters
 
-A compact, dynamic filter bar and date range picker for React. Built on [Radix UI](https://www.radix-ui.com/) and styled with Tailwind CSS v4 using [shadcn/ui](https://ui.shadcn.com/) theme tokens, so it picks up your app's colors, radius and dark mode.
+A small filter bar for React lists. Pick a filter, choose a value, done.
 
 ```
-[⚲ Filter (2) ▾] [✉ Status: Paid ▾ ×] [📅 Date Range: This month ▾ ×] [🔍 Search...          ] Clear
+[⚲ Filter (2) ▾] [Status: Paid ▾ ×] [Date Range: This month ▾ ×] [🔍 Search…        ] Clear
 ```
 
-- **Dynamic:** describe your filters as data, the bar does the rest
-- **Compact:** only active filters take space, the rest wait in the "Filter" menu
-- **Date ranges:** presets (today, this month, last 30 days…), custom ranges with a two-month calendar
-- **URL-friendly:** helpers to keep date ranges in the query string, presets keep rolling with "today"
-- **Accessible:** keyboard navigation, focus management, ARIA labels
-- **Turkish and English** texts built in, every text can be overridden
+- Filters stay hidden until you use them, so the bar stays small.
+- Each active filter is a chip: click it to change the value, click **×** to remove it.
+- It comes with a date range picker: "Today", "This month", "Last 30 days"… or any two days on a calendar.
+- It speaks Turkish and English.
+- It is light: about 15 kB, no icon library, and it uses your app's colors.
 
-## Installation
+## 1. Install
 
 ```sh
 npm install @turkpin/compact-filters
 ```
 
-Peer dependencies (most shadcn/ui apps already have them):
+It also needs these packages. If your app uses [shadcn/ui](https://ui.shadcn.com/), you most likely have them already:
 
 ```sh
-npm install react radix-ui lucide-react clsx tailwind-merge
+npm install react react-dom @radix-ui/react-popover @radix-ui/react-dropdown-menu tailwind-merge
 ```
 
-### Tailwind CSS
+## 2. Let Tailwind see it
 
-The components are styled with Tailwind classes. Let Tailwind scan the package by adding one line to your global CSS:
+The filter bar is styled with [Tailwind CSS v4](https://tailwindcss.com/). Add one line to your main CSS file so Tailwind finds its classes:
 
 ```css
 @import "tailwindcss";
 @source "../node_modules/@turkpin/compact-filters/dist";
 ```
 
-The path is relative to the CSS file. Colors come from the shadcn/ui CSS variables (`--primary`, `--muted`, `--accent`, `--popover`, `--input`, `--ring`…); if your app uses shadcn/ui, there is nothing else to set up.
+The path starts from your CSS file. Fix the `../` part if your CSS file sits deeper.
 
-## Quick start
+## 3. Use it
 
 ```jsx
 "use client";
 
 import { useState } from "react";
 import { FilterBar } from "@turkpin/compact-filters";
-import { CalendarDays, CircleDollarSign } from "lucide-react";
 
 const filters = [
   {
     key: "status",
     label: "Status",
-    icon: CircleDollarSign,
     defaultValue: "all",
     options: [
       { value: "paid", label: "Paid" },
       { value: "unpaid", label: "Unpaid" },
     ],
   },
-  { key: "date", label: "Date Range", icon: CalendarDays, type: "dateRange", defaultValue: null },
+  {
+    key: "date",
+    label: "Date Range",
+    type: "dateRange",
+    defaultValue: null,
+  },
 ];
 
 export function Invoices() {
@@ -67,140 +69,188 @@ export function Invoices() {
       locale="en"
       filters={filters}
       values={values}
-      onChange={(patch) => setValues((prev) => ({ ...prev, ...patch }))}
+      onChange={(changes) => setValues({ ...values, ...changes })}
       search={{ key: "q", placeholder: "Search invoices" }}
     />
   );
 }
 ```
 
-`onChange` receives only the changed keys (`{ status: "paid" }`), or every key at once when the user clicks "Clear". Map them to your API query however you like.
+That is all. Here is what each part does:
 
-## FilterBar
+- **`filters`** is the list of filters the user can pick from.
+- **`values`** holds what is picked right now.
+- **`onChange`** tells you what changed, for example `{ status: "paid" }`. Put it into your state, then load your list with the new values.
+- **`search`** adds a search box. Leave it out if you do not need one.
+- **`locale`** is `"tr"` (the default) or `"en"`.
 
-| Prop | Type | Description |
-|---|---|---|
-| `filters` | `Filter[]` | Filter definitions, see below |
-| `values` | `object` | Current value of each filter, by `key` (and the search key) |
-| `onChange` | `(patch) => void` | Called with the changed keys |
-| `search` | `{ key, placeholder? }` | Optional search input inside the bar |
-| `locale` | `"tr"` \| `"en"` | Built-in texts and date formats, default `"tr"` |
-| `labels` | `object` | Overrides for built-in texts, see [Texts](#texts) |
-| `className` | `string` | Extra classes for the bar |
+## Two kinds of filters
 
-### Filter types
+### A list of choices
 
-**Select** (default)
+```js
+{
+  key: "status",          // the name in `values`
+  label: "Status",        // the text the user sees
+  defaultValue: "all",    // the value that means "no filter"
+  options: [
+    { value: "paid", label: "Paid" },
+    { value: "unpaid", label: "Unpaid" },
+  ],
+}
+```
 
-| Field | Description |
-|---|---|
-| `key` | Key in `values` and `onChange` |
-| `label` | Shown in the menu and on the chip |
-| `icon` | Optional icon component, e.g. from `lucide-react` |
-| `options` | `[{ value, label }]` |
-| `defaultValue` | The "not filtering" value, e.g. `"all"`. A filter on its default value has no chip. Do not list it in `options`, removing the chip already means "all" |
-| `searchable` | Show a search box in the options. Automatic above 8 options |
+- Do not add `"all"` to `options`. Removing the chip already means "all".
+- Long list? A search box shows up in it by itself (more than 8 options). Add `searchable: true` to always show it.
+- Want an icon? Add `icon: SomeIcon`. Any React component works, for example one from `lucide-react`.
 
-**Date range**
+### A date range
 
-| Field | Description |
-|---|---|
-| `type` | `"dateRange"` |
-| `defaultValue` | `null` |
-| `presets` | Optional subset of `DATE_RANGE_PRESETS`, e.g. without `ALL_PRESET` |
+```js
+{ key: "date", label: "Date Range", type: "dateRange", defaultValue: null }
+```
 
-A date range value is `{ preset, from, to }`: `preset` is a preset key or `"custom"`, `from` and `to` are inclusive `YYYY-MM-DD` dates in local time.
+The value you get looks like this:
 
-## DateRangePicker
+```js
+{ preset: "thisMonth", from: "2026-10-01", to: "2026-10-15" }
+```
 
-The same date range UI as a standalone button, e.g. for a dashboard.
+- `from` and `to` are days, and both days count. Send them to your API as they are.
+- `preset` is the name of the quick pick, or `"custom"` when the user picked days on the calendar.
+
+## The date picker on its own
+
+You can also use the date picker as a separate button, for example on a dashboard:
 
 ```jsx
 import { DateRangePicker, createPresetRange } from "@turkpin/compact-filters";
 
 const [range, setRange] = useState(() => createPresetRange("last30Days"));
 
-<DateRangePicker value={range} onChange={setRange} resetPreset="last30Days" locale="en" />
+<DateRangePicker value={range} onChange={setRange} />
 ```
 
-| Prop | Type | Description |
-|---|---|---|
-| `value` | `{ preset, from, to } \| null` | Applied range |
-| `onChange` | `(range) => void` | Called on "Apply" |
-| `presets` | `{ key, label? }[]` | Preset list, default `DATE_RANGE_PRESETS` |
-| `allowCustom` | `boolean` | Show "Custom", default `true` |
-| `clearable` | `boolean` | Show "Clear", which calls `onChange(null)` |
-| `resetPreset` | `string` | Show "Reset" back to this preset |
-| `minDate` / `maxDate` | `string` | Selectable bounds, `maxDate` defaults to today (`null` for no limit) |
-| `align` | `"start"` \| `"center"` \| `"end"` | Popover alignment, default `"end"` |
-| `locale`, `labels` | | Same as FilterBar |
+## Change the texts
 
-`DateRangePanel` (the popover content without the button) is exported too, for building your own trigger.
+Every text can be changed with `labels`:
 
-## Keeping filters in the URL
+```jsx
+<FilterBar labels={{ filter: "Refine", clear: "Reset all" }} />
+```
 
-Date ranges are plain data, so the query string is a good home for them. The helpers have no framework dependency and are also available from `@turkpin/compact-filters/date-range`, which is safe for server code.
+To rename a quick pick, use `presets`:
+
+```jsx
+<FilterBar labels={{ presets: { last7Days: "Past week" } }} />
+```
+
+All texts are in [`src/labels.js`](src/labels.js).
+
+## Keep the filters in the URL (optional)
+
+With the filters in the URL, users can refresh the page or share a link and see the same list. Two helpers turn a date range into URL values and back:
 
 ```js
 import { buildDateRangeUrlParams, parseDateRangeParams } from "@turkpin/compact-filters/date-range";
 
-// ?range=thisMonth  or  ?date_from=2026-10-01&date_to=2026-10-15
-const range = parseDateRangeParams(searchParams, { defaultPreset: null });
-// → { preset: "thisMonth", from: "2026-10-01", to: "2026-10-15" } or null
+// URL → value: ?range=thisMonth or ?date_from=2026-10-01&date_to=2026-10-15
+const date = parseDateRangeParams(searchParams, { defaultPreset: null });
 
-const params = buildDateRangeUrlParams(range, { defaultPreset: null });
-// → { range: "thisMonth", date_from: null, date_to: null }, null means "remove from the URL"
+// value → URL: null means "remove it from the URL"
+const params = buildDateRangeUrlParams(date, { defaultPreset: null });
+// { range: "thisMonth", date_from: null, date_to: null }
 ```
 
-Presets are stored by key and resolved against today on every read, so a shared "this month" link keeps meaning "this month". Pass `keys: { preset, from, to }` to use other parameter names.
+A shared "This month" link always means the current month, even next month.
 
-Other helpers: `createPresetRange`, `resolvePreset`, `isPresetKey`, `countDays`, `addDays`, `addMonths`, `startOfWeek`, `startOfMonth`, `endOfMonth`, `toIsoDate`, `fromIsoDate`, `isIsoDate`, `todayIso`, and the constants `DATE_RANGE_PRESETS`, `ALL_PRESET`, `CUSTOM_PRESET`, `DATE_RANGE_PARAM_KEYS`.
-
-## Texts
-
-Turkish (`tr`, default) and English (`en`) are built in. Any text can be overridden with `labels`, preset names under `presets`:
-
-```jsx
-<FilterBar labels={{ filter: "Refine", presets: { last7Days: "Past week" } }} />
-```
-
-All keys are listed in [`src/labels.js`](src/labels.js) and exported as `DEFAULT_LABELS`. For another language, pass a full `labels` object.
+`@turkpin/compact-filters/date-range` is plain JavaScript. It also works on the server.
 
 ## Next.js
 
-The main entry starts with `"use client"`, so the components work in the App Router; render them from a client component. `@turkpin/compact-filters/date-range` has no directive and can be used in server components and route handlers.
+Use the components inside a client component (a file that starts with `"use client"`). The date helpers from `/date-range` work everywhere.
 
-## Development
+## All options
+
+### FilterBar
+
+| Prop | What it does |
+|---|---|
+| `filters` | The filters the user can pick from |
+| `values` | What is picked right now: `{ [key]: value }` |
+| `onChange` | Called with what changed: `{ [key]: value }` |
+| `search` | Optional search box: `{ key, placeholder }` |
+| `locale` | `"tr"` (default) or `"en"` |
+| `labels` | Your own texts |
+| `className` | Extra CSS classes for the bar |
+
+### A filter
+
+| Field | What it does |
+|---|---|
+| `key` | Its name in `values` |
+| `label` | The text the user sees |
+| `defaultValue` | The value that means "no filter" (`"all"`, `null`…) |
+| `options` | `[{ value, label }]`, for a list of choices |
+| `searchable` | Always show the search box in the list |
+| `type` | `"dateRange"` for a date range |
+| `presets` | Which quick picks to show in a date range |
+| `icon` | An icon component |
+
+### DateRangePicker
+
+| Prop | What it does |
+|---|---|
+| `value` | The picked range, or `null` |
+| `onChange` | Called when the user clicks "Apply" |
+| `clearable` | Show a "Clear" button |
+| `resetPreset` | Show a "Reset" button that goes back to this quick pick |
+| `presets` | Which quick picks to show |
+| `allowCustom` | Let the user pick days on the calendar (default `true`) |
+| `minDate`, `maxDate` | The first and last day the user can pick. `maxDate` is today by default, `null` means no limit |
+| `align` | Where the popup opens: `"start"`, `"center"` or `"end"` (default) |
+| `locale`, `labels` | Same as FilterBar |
+
+`DateRangePanel` is the picker without its button, for building your own.
+
+### Quick picks
+
+`allTime`, `today`, `yesterday`, `thisWeek`, `lastWeek`, `thisMonth`, `lastMonth`, `thisYear`, `lastYear`, `last7Days`, `last14Days`, `last30Days`, `last60Days`, `last90Days`, `last180Days`, `last365Days`.
+
+Weeks start on Monday.
+
+### Date helpers
+
+`createPresetRange`, `resolvePreset`, `isPresetKey`, `parseDateRangeParams`, `buildDateRangeUrlParams`, `countDays`, `addDays`, `addMonths`, `startOfWeek`, `startOfMonth`, `endOfMonth`, `toIsoDate`, `fromIsoDate`, `isIsoDate`, `todayIso`, and the constants `DATE_RANGE_PRESETS`, `ALL_PRESET`, `CUSTOM_PRESET`, `DATE_RANGE_PARAM_KEYS`.
+
+## For maintainers
+
+### Work on it
 
 ```sh
 npm install
-npm test        # builds, then runs unit and render tests
-npm run build   # dist/index.js and dist/date-range.js
+npm test        # builds, then runs the tests
 ```
 
-The source is plain JavaScript and JSX in `src/`, bundled with esbuild by `scripts/build.js`. Peer dependencies stay external.
+The code is in `src/`. `npm run build` makes `dist/` with esbuild.
 
-## Contributing
+### Send changes
 
-Work happens on forks:
+1. Fork `turkpin/compact-filters` and work on your fork's `dev` branch.
+2. Open a pull request to `turkpin:dev`. The tests run on it.
+3. When `dev` is ready, merge it into `main` with a pull request.
 
-1. Fork `turkpin/compact-filters` and work on your fork's `dev` branch
-2. Open a pull request to `turkpin:dev`; CI runs the tests and the build
-3. When `dev` is ready to ship, it is merged into `main` with a pull request
+### Release a new version
 
-## Releasing
-
-Releases are published to npm by GitHub Actions ([`publish.yml`](.github/workflows/publish.yml)):
-
-1. On `main`, bump the version and push the tag:
+1. On `main`, raise the version and push it:
    ```sh
    npm version patch   # or minor / major
    git push upstream main --follow-tags
    ```
-2. Create a GitHub release from the tag (`gh release create v0.1.1 --generate-notes`)
-3. The workflow tests, builds and publishes `@turkpin/compact-filters` with [provenance](https://docs.npmjs.com/generating-provenance-statements)
+2. Make a GitHub release from the new tag: `gh release create v0.1.1 --generate-notes`
+3. GitHub Actions tests it and publishes it to npm.
 
-The workflow needs an `NPM_TOKEN` repository secret: an npm automation (or granular) token that can publish to the `@turkpin` scope.
+The repository needs an `NPM_TOKEN` secret: an npm token that can publish to `@turkpin`.
 
 ## License
 
