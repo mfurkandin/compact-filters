@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, ListFilter, Search, X } from "lucide-react";
+import { Check, ChevronDown, ListFilter, Search, X } from "../icons";
 import { cn } from "../cn";
 import { resolveLabels } from "../labels";
 import { Button } from "../primitives/button";

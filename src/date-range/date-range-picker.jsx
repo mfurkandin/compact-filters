@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowRight, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight } from "../icons";
 import { cn } from "../cn";
 import { formatLabel, getPresetLabel, resolveLabels } from "../labels";
 import { Button } from "../primitives/button";

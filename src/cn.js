@@ -1,6 +1,4 @@
-import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-export function cn(...inputs) {
-  return twMerge(clsx(inputs));
-}
+// twMerge already joins strings and skips falsy values, the later class wins on conflicts
+export const cn = twMerge;
