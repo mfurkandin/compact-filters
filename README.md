@@ -1,6 +1,6 @@
 # @turkpin/compact-filters
 
-**English** · [Türkçe](https://github.com/turkpin/compact-filters/blob/main/README.tr.md)
+**English** · [Türkçe](https://github.com/turkpin/compact-filters/blob/main/docs/README.tr.md)
 
 A small filter bar for React lists. Pick a filter, choose a value, done.
 

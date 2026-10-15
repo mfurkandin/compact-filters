@@ -4,7 +4,7 @@
 
 React listeleri için küçük bir filtre çubuğu. Filtreyi seç, değeri seç, bitti.
 
-![Bir fatura listesinin üstünde üç filtresi açık filtre çubuğu](docs/screenshots/turkish.png)
+![Bir fatura listesinin üstünde üç filtresi açık filtre çubuğu](screenshots/turkish.png)
 
 - Filtreler sen kullanana kadar gizli durur, çubuk hep küçük kalır.
 - Açık olan her filtre bir kutucuktur: değiştirmek için üstüne tıkla, kaldırmak için **×**'e tıkla.
@@ -16,11 +16,11 @@ React listeleri için küçük bir filtre çubuğu. Filtreyi seç, değeri seç,
 
 | Filtre seç | Uzun listede ara |
 |---|---|
-| ![Filtrele menüsü](docs/screenshots/filter-menu.png) | ![Arama kutulu müşteri listesi](docs/screenshots/filter-options.png) |
+| ![Filtrele menüsü](screenshots/filter-menu.png) | ![Arama kutulu müşteri listesi](screenshots/filter-options.png) |
 | **Tarih seç** | **Koyu tema** |
-| ![Tarih aralığı seçici](docs/screenshots/date-range.png) | ![Koyu temada filtre çubuğu](docs/screenshots/dark.png) |
+| ![Tarih aralığı seçici](screenshots/date-range.png) | ![Koyu temada filtre çubuğu](screenshots/dark.png) |
 | **İngilizce** | **Telefonda** |
-| ![İngilizce filtre çubuğu](docs/screenshots/filter-bar.png) | ![Telefonda tarih seçici](docs/screenshots/mobile.png) |
+| ![İngilizce filtre çubuğu](screenshots/filter-bar.png) | ![Telefonda tarih seçici](screenshots/mobile.png) |
 
 ## 1. Kur
 
@@ -154,7 +154,7 @@ Bir hızlı seçimin adını değiştirmek için `presets` kullan:
 <FilterBar labels={{ presets: { last7Days: "Geçen 1 hafta" } }} />
 ```
 
-Bütün yazılar [`src/labels.js`](src/labels.js) dosyasında.
+Bütün yazılar [`src/labels.js`](../src/labels.js) dosyasında.
 
 ## Filtreleri adres çubuğunda tut (isteğe bağlı)
 
@@ -273,4 +273,4 @@ Repoda bir `NPM_TOKEN` secret'ı olmalı: `@turkpin` altına yayın yapabilen bi
 
 ## Lisans
 
-[MIT](LICENSE)
+[MIT](../LICENSE)
