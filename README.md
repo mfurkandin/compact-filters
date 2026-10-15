@@ -1,0 +1,281 @@
+# @turkpin/compact-filters
+
+**English** · [Türkçe](https://github.com/turkpin/compact-filters/blob/main/docs/README.tr.md)
+
+A small filter bar for React lists. Pick a filter, choose a value, done.
+
+**[Try the live demo →](https://turkpin.github.io/compact-filters/)**
+
+![The filter bar with two active filters above an invoice list](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/filter-bar.png)
+
+- Filters stay hidden until you use them, so the bar stays small.
+- Each active filter is a chip: click it to change the value, click **×** to remove it.
+- It comes with a date range picker: "Today", "This month", "Last 30 days"… or any two days on a calendar.
+- It speaks Turkish and English.
+- It is light: about 15 kB, no icon library, and it uses your app's colors.
+
+## See it
+
+| Pick a filter | Search a long list |
+|---|---|
+| ![The Filter menu](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/filter-menu.png) | ![A customer list with a search box](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/filter-options.png) |
+| **Pick dates** | **Dark mode** |
+| ![The date range picker](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/date-range.png) | ![The filter bar in dark mode](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/dark.png) |
+| **Turkish** | **On a phone** |
+| ![The filter bar in Turkish](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/turkish.png) | ![The date picker on a phone](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/mobile.png) |
+
+## 1. Install
+
+```sh
+npm install @turkpin/compact-filters
+```
+
+It also needs these packages. If your app uses [shadcn/ui](https://ui.shadcn.com/), you most likely have them already:
+
+```sh
+npm install react react-dom @radix-ui/react-popover @radix-ui/react-dropdown-menu tailwind-merge
+```
+
+## 2. Let Tailwind see it
+
+The filter bar is styled with [Tailwind CSS v4](https://tailwindcss.com/). Add one line to your main CSS file so Tailwind finds its classes:
+
+```css
+@import "tailwindcss";
+@source "../node_modules/@turkpin/compact-filters/dist";
+```
+
+The path starts from your CSS file. Fix the `../` part if your CSS file sits deeper.
+
+## 3. Use it
+
+```jsx
+"use client";
+
+import { useState } from "react";
+import { FilterBar } from "@turkpin/compact-filters";
+
+const filters = [
+  {
+    key: "status",
+    label: "Status",
+    defaultValue: "all",
+    options: [
+      { value: "paid", label: "Paid" },
+      { value: "unpaid", label: "Unpaid" },
+    ],
+  },
+  {
+    key: "date",
+    label: "Date Range",
+    type: "dateRange",
+    defaultValue: null,
+  },
+];
+
+export function Invoices() {
+  const [values, setValues] = useState({ status: "all", date: null, q: "" });
+
+  return (
+    <FilterBar
+      locale="en"
+      filters={filters}
+      values={values}
+      onChange={(changes) => setValues({ ...values, ...changes })}
+      search={{ key: "q", placeholder: "Search invoices" }}
+    />
+  );
+}
+```
+
+That is all. Here is what each part does:
+
+- **`filters`** is the list of filters the user can pick from.
+- **`values`** holds what is picked right now.
+- **`onChange`** tells you what changed, for example `{ status: "paid" }`. Put it into your state, then load your list with the new values.
+- **`search`** adds a search box. Leave it out if you do not need one.
+- **`locale`** is `"tr"` (the default) or `"en"`.
+
+## Two kinds of filters
+
+### A list of choices
+
+```js
+{
+  key: "status",          // the name in `values`
+  label: "Status",        // the text the user sees
+  defaultValue: "all",    // the value that means "no filter"
+  options: [
+    { value: "paid", label: "Paid" },
+    { value: "unpaid", label: "Unpaid" },
+  ],
+}
+```
+
+- Do not add `"all"` to `options`. Removing the chip already means "all".
+- Long list? A search box shows up in it by itself (more than 8 options). Add `searchable: true` to always show it.
+- Want an icon? Add `icon: SomeIcon`. Any React component works, for example one from `lucide-react`.
+
+### A date range
+
+```js
+{ key: "date", label: "Date Range", type: "dateRange", defaultValue: null }
+```
+
+The value you get looks like this:
+
+```js
+{ preset: "thisMonth", from: "2026-10-01", to: "2026-10-15" }
+```
+
+- `from` and `to` are days, and both days count. Send them to your API as they are.
+- `preset` is the name of the quick pick, or `"custom"` when the user picked days on the calendar.
+
+## The date picker on its own
+
+You can also use the date picker as a separate button, for example on a dashboard:
+
+```jsx
+import { DateRangePicker, createPresetRange } from "@turkpin/compact-filters";
+
+const [range, setRange] = useState(() => createPresetRange("last30Days"));
+
+<DateRangePicker value={range} onChange={setRange} />
+```
+
+## Change the texts
+
+Every text can be changed with `labels`:
+
+```jsx
+<FilterBar labels={{ filter: "Refine", clear: "Reset all" }} />
+```
+
+To rename a quick pick, use `presets`:
+
+```jsx
+<FilterBar labels={{ presets: { last7Days: "Past week" } }} />
+```
+
+All texts are in [`src/labels.js`](src/labels.js).
+
+## Keep the filters in the URL (optional)
+
+With the filters in the URL, users can refresh the page or share a link and see the same list. Two helpers turn a date range into URL values and back:
+
+```js
+import { buildDateRangeUrlParams, parseDateRangeParams } from "@turkpin/compact-filters/date-range";
+
+// URL → value: ?range=thisMonth or ?date_from=2026-10-01&date_to=2026-10-15
+const date = parseDateRangeParams(searchParams, { defaultPreset: null });
+
+// value → URL: null means "remove it from the URL"
+const params = buildDateRangeUrlParams(date, { defaultPreset: null });
+// { range: "thisMonth", date_from: null, date_to: null }
+```
+
+A shared "This month" link always means the current month, even next month.
+
+`@turkpin/compact-filters/date-range` is plain JavaScript. It also works on the server.
+
+## Next.js
+
+Use the components inside a client component (a file that starts with `"use client"`). The date helpers from `/date-range` work everywhere.
+
+## All options
+
+### FilterBar
+
+| Prop | What it does |
+|---|---|
+| `filters` | The filters the user can pick from |
+| `values` | What is picked right now: `{ [key]: value }` |
+| `onChange` | Called with what changed: `{ [key]: value }` |
+| `search` | Optional search box: `{ key, placeholder }` |
+| `locale` | `"tr"` (default) or `"en"` |
+| `labels` | Your own texts |
+| `className` | Extra CSS classes for the bar |
+
+### A filter
+
+| Field | What it does |
+|---|---|
+| `key` | Its name in `values` |
+| `label` | The text the user sees |
+| `defaultValue` | The value that means "no filter" (`"all"`, `null`…) |
+| `options` | `[{ value, label }]`, for a list of choices |
+| `searchable` | Always show the search box in the list |
+| `type` | `"dateRange"` for a date range |
+| `presets` | Which quick picks to show in a date range |
+| `icon` | An icon component |
+
+### DateRangePicker
+
+| Prop | What it does |
+|---|---|
+| `value` | The picked range, or `null` |
+| `onChange` | Called when the user clicks "Apply" |
+| `clearable` | Show a "Clear" button |
+| `resetPreset` | Show a "Reset" button that goes back to this quick pick |
+| `presets` | Which quick picks to show |
+| `allowCustom` | Let the user pick days on the calendar (default `true`) |
+| `minDate`, `maxDate` | The first and last day the user can pick. `maxDate` is today by default, `null` means no limit |
+| `align` | Where the popup opens: `"start"`, `"center"` or `"end"` (default) |
+| `locale`, `labels` | Same as FilterBar |
+
+`DateRangePanel` is the picker without its button, for building your own.
+
+### Quick picks
+
+`allTime`, `today`, `yesterday`, `thisWeek`, `lastWeek`, `thisMonth`, `lastMonth`, `thisYear`, `lastYear`, `last7Days`, `last14Days`, `last30Days`, `last60Days`, `last90Days`, `last180Days`, `last365Days`.
+
+Weeks start on Monday.
+
+### Date helpers
+
+`createPresetRange`, `resolvePreset`, `isPresetKey`, `parseDateRangeParams`, `buildDateRangeUrlParams`, `countDays`, `addDays`, `addMonths`, `startOfWeek`, `startOfMonth`, `endOfMonth`, `toIsoDate`, `fromIsoDate`, `isIsoDate`, `todayIso`, and the constants `DATE_RANGE_PRESETS`, `ALL_PRESET`, `CUSTOM_PRESET`, `DATE_RANGE_PARAM_KEYS`.
+
+## For maintainers
+
+### Work on it
+
+```sh
+npm install
+npm test        # builds, then runs the tests
+```
+
+The code is in `src/`. `npm run build` makes `dist/` with esbuild.
+
+### Try it in a browser
+
+```sh
+npm run demo    # then open demo/index.html
+```
+
+The demo is a small invoice list. Add `?locale=tr` or `?theme=dark` to the address to see Turkish or dark mode.
+
+`npm run screenshots` takes the pictures in this README again. It needs Google Chrome.
+
+The same page is the [live demo](https://turkpin.github.io/compact-filters/). [`pages.yml`](.github/workflows/pages.yml) publishes it whenever `main` changes. To turn it on once: repository **Settings → Pages → Source: GitHub Actions**.
+
+### Send changes
+
+1. Fork `turkpin/compact-filters` and work on your fork's `dev` branch.
+2. Open a pull request to `turkpin:dev`. The tests run on it.
+3. When `dev` is ready, merge it into `main` with a pull request.
+
+### Release a new version
+
+1. On `main`, raise the version and push it:
+   ```sh
+   npm version patch   # or minor / major
+   git push upstream main --follow-tags
+   ```
+2. Make a GitHub release from the new tag: `gh release create v0.1.1 --generate-notes`
+3. GitHub Actions tests it and publishes it to npm.
+
+The repository needs an `NPM_TOKEN` secret: an npm token that can publish to `@turkpin`.
+
+## License
+
+[MIT](LICENSE)

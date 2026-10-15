@@ -1,0 +1,280 @@
+# @turkpin/compact-filters
+
+[English](https://github.com/turkpin/compact-filters/blob/main/README.md) · **Türkçe**
+
+React listeleri için küçük bir filtre çubuğu. Filtreyi seç, değeri seç, bitti.
+
+**[Canlı demoyu dene →](https://turkpin.github.io/compact-filters/?locale=tr)**
+
+![Bir fatura listesinin üstünde üç filtresi açık filtre çubuğu](screenshots/turkish.png)
+
+- Filtreler sen kullanana kadar gizli durur, çubuk hep küçük kalır.
+- Açık olan her filtre bir kutucuktur: değiştirmek için üstüne tıkla, kaldırmak için **×**'e tıkla.
+- İçinde bir tarih aralığı seçici var: "Bugün", "Bu ay", "Son 30 gün"… ya da takvimden istediğin iki gün.
+- Türkçe ve İngilizce bilir.
+- Hafiftir: yaklaşık 15 kB, ikon kütüphanesi gerekmez ve uygulamanın renklerini kullanır.
+
+## Görüntüler
+
+| Filtre seç | Uzun listede ara |
+|---|---|
+| ![Filtrele menüsü](screenshots/filter-menu.png) | ![Arama kutulu müşteri listesi](screenshots/filter-options.png) |
+| **Tarih seç** | **Koyu tema** |
+| ![Tarih aralığı seçici](screenshots/date-range.png) | ![Koyu temada filtre çubuğu](screenshots/dark.png) |
+| **İngilizce** | **Telefonda** |
+| ![İngilizce filtre çubuğu](screenshots/filter-bar.png) | ![Telefonda tarih seçici](screenshots/mobile.png) |
+
+## 1. Kur
+
+```sh
+npm install @turkpin/compact-filters
+```
+
+Şu paketler de gerekir. Uygulaman [shadcn/ui](https://ui.shadcn.com/) kullanıyorsa büyük ihtimalle zaten kuruludur:
+
+```sh
+npm install react react-dom @radix-ui/react-popover @radix-ui/react-dropdown-menu tailwind-merge
+```
+
+## 2. Tailwind'e göster
+
+Filtre çubuğunun görünüşü [Tailwind CSS v4](https://tailwindcss.com/) ile yapılır. Tailwind'in onu bulması için ana CSS dosyana bir satır ekle:
+
+```css
+@import "tailwindcss";
+@source "../node_modules/@turkpin/compact-filters/dist";
+```
+
+Yol, CSS dosyanın olduğu yerden başlar. CSS dosyan daha içerideyse `../` kısmını ona göre düzelt.
+
+## 3. Kullan
+
+```jsx
+"use client";
+
+import { useState } from "react";
+import { FilterBar } from "@turkpin/compact-filters";
+
+const filters = [
+  {
+    key: "status",
+    label: "Durum",
+    defaultValue: "all",
+    options: [
+      { value: "paid", label: "Ödendi" },
+      { value: "unpaid", label: "Ödenmedi" },
+    ],
+  },
+  {
+    key: "date",
+    label: "Tarih Aralığı",
+    type: "dateRange",
+    defaultValue: null,
+  },
+];
+
+export function Faturalar() {
+  const [values, setValues] = useState({ status: "all", date: null, q: "" });
+
+  return (
+    <FilterBar
+      filters={filters}
+      values={values}
+      onChange={(changes) => setValues({ ...values, ...changes })}
+      search={{ key: "q", placeholder: "Fatura ara" }}
+    />
+  );
+}
+```
+
+Hepsi bu. Her parça ne işe yarar:
+
+- **`filters`**, kullanıcının seçebileceği filtrelerin listesidir.
+- **`values`**, şu an neyin seçili olduğunu tutar.
+- **`onChange`**, neyin değiştiğini söyler, örneğin `{ status: "paid" }`. Bunu state'ine koy, sonra listeni yeni değerlerle yükle.
+- **`search`**, bir arama kutusu ekler. Gerekmiyorsa yazma.
+- **`locale`**, `"tr"` (varsayılan) ya da `"en"` olur.
+
+## İki çeşit filtre
+
+### Seçenek listesi
+
+```js
+{
+  key: "status",          // values içindeki adı
+  label: "Durum",         // kullanıcının gördüğü yazı
+  defaultValue: "all",    // "filtre yok" anlamına gelen değer
+  options: [
+    { value: "paid", label: "Ödendi" },
+    { value: "unpaid", label: "Ödenmedi" },
+  ],
+}
+```
+
+- `"all"`'u `options` içine koyma. Kutucuğu kaldırmak zaten "hepsi" demek.
+- Liste uzun mu? İçinde kendiliğinden bir arama kutusu çıkar (8'den fazla seçenekte). Hep görünsün istersen `searchable: true` ekle.
+- İkon mu istiyorsun? `icon: BirIkon` ekle. Herhangi bir React component'i olur, örneğin `lucide-react`'ten biri.
+
+### Tarih aralığı
+
+```js
+{ key: "date", label: "Tarih Aralığı", type: "dateRange", defaultValue: null }
+```
+
+Gelen değer şöyle görünür:
+
+```js
+{ preset: "thisMonth", from: "2026-10-01", to: "2026-10-15" }
+```
+
+- `from` ve `to` gündür ve iki gün de dahildir. API'ne olduğu gibi gönder.
+- `preset`, hızlı seçimin adıdır. Kullanıcı takvimden gün seçtiyse `"custom"` olur.
+
+## Tarih seçiciyi tek başına kullan
+
+Tarih seçiciyi ayrı bir buton olarak da kullanabilirsin, örneğin bir dashboard'da:
+
+```jsx
+import { DateRangePicker, createPresetRange } from "@turkpin/compact-filters";
+
+const [range, setRange] = useState(() => createPresetRange("last30Days"));
+
+<DateRangePicker value={range} onChange={setRange} />
+```
+
+## Yazıları değiştir
+
+Her yazı `labels` ile değiştirilebilir:
+
+```jsx
+<FilterBar labels={{ filter: "Süz", clear: "Hepsini sıfırla" }} />
+```
+
+Bir hızlı seçimin adını değiştirmek için `presets` kullan:
+
+```jsx
+<FilterBar labels={{ presets: { last7Days: "Geçen 1 hafta" } }} />
+```
+
+Bütün yazılar [`src/labels.js`](../src/labels.js) dosyasında.
+
+## Filtreleri adres çubuğunda tut (isteğe bağlı)
+
+Filtreler adresteyse kullanıcı sayfayı yenilediğinde ya da linki paylaştığında aynı listeyi görür. İki yardımcı, tarih aralığını adres değerlerine çevirir ve geri alır:
+
+```js
+import { buildDateRangeUrlParams, parseDateRangeParams } from "@turkpin/compact-filters/date-range";
+
+// adres → değer: ?range=thisMonth ya da ?date_from=2026-10-01&date_to=2026-10-15
+const date = parseDateRangeParams(searchParams, { defaultPreset: null });
+
+// değer → adres: null "adresten kaldır" demek
+const params = buildDateRangeUrlParams(date, { defaultPreset: null });
+// { range: "thisMonth", date_from: null, date_to: null }
+```
+
+Paylaşılan bir "Bu ay" linki hep içinde bulunulan ayı gösterir, gelecek ay açılsa bile.
+
+`@turkpin/compact-filters/date-range` düz JavaScript'tir. Sunucuda da çalışır.
+
+## Next.js
+
+Component'leri bir client component içinde kullan (`"use client"` ile başlayan bir dosya). `/date-range` yardımcıları her yerde çalışır.
+
+## Bütün seçenekler
+
+### FilterBar
+
+| Prop | Ne yapar |
+|---|---|
+| `filters` | Kullanıcının seçebileceği filtreler |
+| `values` | Şu an seçili olanlar: `{ [key]: value }` |
+| `onChange` | Değişenle çağrılır: `{ [key]: value }` |
+| `search` | İsteğe bağlı arama kutusu: `{ key, placeholder }` |
+| `locale` | `"tr"` (varsayılan) ya da `"en"` |
+| `labels` | Kendi yazıların |
+| `className` | Çubuğa eklenecek CSS class'ları |
+
+### Bir filtre
+
+| Alan | Ne yapar |
+|---|---|
+| `key` | `values` içindeki adı |
+| `label` | Kullanıcının gördüğü yazı |
+| `defaultValue` | "Filtre yok" anlamına gelen değer (`"all"`, `null`…) |
+| `options` | `[{ value, label }]`, seçenek listesi için |
+| `searchable` | Listedeki arama kutusunu hep göster |
+| `type` | Tarih aralığı için `"dateRange"` |
+| `presets` | Tarih aralığında hangi hızlı seçimler görünsün |
+| `icon` | Bir ikon component'i |
+
+### DateRangePicker
+
+| Prop | Ne yapar |
+|---|---|
+| `value` | Seçili aralık ya da `null` |
+| `onChange` | Kullanıcı "Uygula"ya tıklayınca çağrılır |
+| `clearable` | "Temizle" butonu göster |
+| `resetPreset` | Bu hızlı seçime dönen bir "Sıfırla" butonu göster |
+| `presets` | Hangi hızlı seçimler görünsün |
+| `allowCustom` | Kullanıcı takvimden gün seçebilsin (varsayılan `true`) |
+| `minDate`, `maxDate` | Seçilebilecek ilk ve son gün. `maxDate` varsayılan olarak bugündür, `null` sınır yok demek |
+| `align` | Pencerenin açılacağı yer: `"start"`, `"center"` ya da `"end"` (varsayılan) |
+| `locale`, `labels` | FilterBar'daki gibi |
+
+`DateRangePanel`, butonu olmayan seçicidir; kendi butonunu yapmak için.
+
+### Hızlı seçimler
+
+`allTime`, `today`, `yesterday`, `thisWeek`, `lastWeek`, `thisMonth`, `lastMonth`, `thisYear`, `lastYear`, `last7Days`, `last14Days`, `last30Days`, `last60Days`, `last90Days`, `last180Days`, `last365Days`.
+
+Haftalar pazartesi başlar.
+
+### Tarih yardımcıları
+
+`createPresetRange`, `resolvePreset`, `isPresetKey`, `parseDateRangeParams`, `buildDateRangeUrlParams`, `countDays`, `addDays`, `addMonths`, `startOfWeek`, `startOfMonth`, `endOfMonth`, `toIsoDate`, `fromIsoDate`, `isIsoDate`, `todayIso` ve sabitler: `DATE_RANGE_PRESETS`, `ALL_PRESET`, `CUSTOM_PRESET`, `DATE_RANGE_PARAM_KEYS`.
+
+## Geliştirenler için
+
+### Üzerinde çalış
+
+```sh
+npm install
+npm test        # build alır, sonra testleri çalıştırır
+```
+
+Kod `src/` içinde. `npm run build`, esbuild ile `dist/` klasörünü oluşturur.
+
+### Tarayıcıda dene
+
+```sh
+npm run demo    # sonra demo/index.html dosyasını aç
+```
+
+Demo küçük bir fatura listesi. Türkçe ya da koyu temayı görmek için adresin sonuna `?locale=tr` ya da `?theme=dark` ekle.
+
+`npm run screenshots`, bu README'deki görüntüleri yeniden çeker. Google Chrome gerekir.
+
+Aynı sayfa [canlı demo](https://turkpin.github.io/compact-filters/?locale=tr) olarak yayında. [`pages.yml`](../.github/workflows/pages.yml) her `main` değişikliğinde onu yayınlar. Bir kez açmak için: repo **Settings → Pages → Source: GitHub Actions**.
+
+### Değişiklik gönder
+
+1. `turkpin/compact-filters` reposunu fork'la, fork'unun `dev` branch'inde çalış.
+2. `turkpin:dev`'e bir pull request aç. Testler üzerinde çalışır.
+3. `dev` hazır olunca bir pull request ile `main`'e birleştir.
+
+### Yeni sürüm çıkar
+
+1. `main` üzerinde sürümü artır ve gönder:
+   ```sh
+   npm version patch   # ya da minor / major
+   git push upstream main --follow-tags
+   ```
+2. Yeni tag'den bir GitHub release oluştur: `gh release create v0.1.1 --generate-notes`
+3. GitHub Actions test eder ve npm'e yayınlar.
+
+Repoda bir `NPM_TOKEN` secret'ı olmalı: `@turkpin` altına yayın yapabilen bir npm token'ı.
+
+## Lisans
+
+[MIT](../LICENSE)
