@@ -48,9 +48,37 @@ function readInitialValues() {
   return { status: "all", channel: "all", customer: "all", date: null, q: "" };
 }
 
+// Links that keep the other settings, e.g. switch to dark mode and stay in Turkish
+function settingHref(key, value) {
+  const params = new URLSearchParams(window.location.search);
+  params.set(key, value);
+  params.delete("state");
+  return `?${params}`;
+}
+
+function Switch({ name, current, options }) {
+  return (
+    <div className="flex overflow-hidden rounded-md border text-xs">
+      {options.map(([value, label]) => (
+        <a
+          key={value}
+          href={settingHref(name, value)}
+          aria-current={current === value ? "true" : undefined}
+          className="px-2 py-1 text-muted-foreground hover:bg-muted aria-[current]:bg-primary aria-[current]:text-primary-foreground"
+        >
+          {label}
+        </a>
+      ))}
+    </div>
+  );
+}
+
 function Demo() {
   const params = new URLSearchParams(window.location.search);
   const locale = params.get("locale") === "tr" ? "tr" : "en";
+  const theme = params.get("theme") === "dark" ? "dark" : "light";
+  // Screenshots hide the demo's own controls
+  const showToolbar = params.get("toolbar") !== "0";
   const text = TEXTS[locale];
   const [values, setValues] = useState(readInitialValues);
 
@@ -97,7 +125,21 @@ function Demo() {
 
   return (
     <main className="mx-auto max-w-4xl p-4 sm:p-8">
-      <h1 className="mb-4 text-xl font-semibold">{text.title}</h1>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-xl font-semibold">{text.title}</h1>
+        {showToolbar && (
+          <div className="flex items-center gap-2">
+            <Switch name="locale" current={locale} options={[["en", "EN"], ["tr", "TR"]]} />
+            <Switch name="theme" current={theme} options={[["light", "Light"], ["dark", "Dark"]]} />
+            <a
+              href="https://github.com/turkpin/compact-filters"
+              className="rounded-md border px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
+            >
+              GitHub
+            </a>
+          </div>
+        )}
+      </div>
       <FilterBar
         locale={locale}
         filters={filters}

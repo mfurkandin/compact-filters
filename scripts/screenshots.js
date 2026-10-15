@@ -16,7 +16,7 @@ async function open({ state, locale = "en", theme = "light", width = 960, height
   const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 2 });
   // Fixed "today" so presets and the calendar look the same on every run
   await page.clock.setFixedTime(new Date("2026-10-15T10:00:00"));
-  const query = new URLSearchParams({ locale, theme, ...(state ? { state: JSON.stringify(state) } : {}) });
+  const query = new URLSearchParams({ locale, theme, toolbar: "0", ...(state ? { state: JSON.stringify(state) } : {}) });
   await page.goto(`${PAGE}?${query}`);
   await page.waitForSelector("table");
   return page;
