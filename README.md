@@ -6,7 +6,7 @@ A small filter bar for React lists. Pick a filter, choose a value, done.
 
 **[Try the live demo →](https://turkpin.github.io/compact-filters/)**
 
-![The filter bar with two active filters above an invoice list](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/filter-bar.png)
+![The filter bar with two active filters above an invoice list](docs/screenshots/filter-bar.png)
 
 - Filters stay hidden until you use them, so the bar stays small.
 - Each active filter is a chip: click it to change the value, click **×** to remove it.
@@ -18,11 +18,11 @@ A small filter bar for React lists. Pick a filter, choose a value, done.
 
 | Pick a filter | Search a long list |
 |---|---|
-| ![The Filter menu](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/filter-menu.png) | ![A customer list with a search box](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/filter-options.png) |
+| ![The Filter menu](docs/screenshots/filter-menu.png) | ![A customer list with a search box](docs/screenshots/filter-options.png) |
 | **Pick dates** | **Dark mode** |
-| ![The date range picker](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/date-range.png) | ![The filter bar in dark mode](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/dark.png) |
+| ![The date range picker](docs/screenshots/date-range.png) | ![The filter bar in dark mode](docs/screenshots/dark.png) |
 | **Turkish** | **On a phone** |
-| ![The filter bar in Turkish](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/turkish.png) | ![The date picker on a phone](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/mobile.png) |
+| ![The filter bar in Turkish](docs/screenshots/turkish.png) | ![The date picker on a phone](docs/screenshots/mobile.png) |
 
 ## 1. Install
 
@@ -266,15 +266,21 @@ The same page is the [live demo](https://turkpin.github.io/compact-filters/). [`
 
 ### Release a new version
 
-1. On `main`, raise the version and push it:
-   ```sh
-   npm version patch   # or minor / major
-   git push upstream main --follow-tags
-   ```
-2. Make a GitHub release from the new tag: `gh release create v0.1.1 --generate-notes`
-3. GitHub Actions tests it and publishes it to npm.
+`main` and `dev` only take changes through pull requests, so the version goes in with one too.
 
-The repository needs an `NPM_TOKEN` secret: an npm token that can publish to `@turkpin`.
+1. On your fork's `dev`, raise the version without making a tag:
+   ```sh
+   npm version patch --no-git-tag-version   # or minor / major
+   git commit -am "(chore) package: 0.1.1"
+   ```
+2. Get it into `main` with pull requests: your `dev` → `turkpin:dev` → `main`.
+3. Make a GitHub release on `main`. It creates the tag too:
+   ```sh
+   gh release create v0.1.1 --repo turkpin/compact-filters --target main --generate-notes
+   ```
+4. A maintainer approves the **npm** deployment in the Actions tab. GitHub Actions then tests it and publishes it to npm.
+
+The release tag must match the version in `package.json` (`v0.1.1` ↔ `0.1.1`), otherwise publishing stops. The npm token is the `NPM_TOKEN` secret of the **npm** environment.
 
 ## License
 
