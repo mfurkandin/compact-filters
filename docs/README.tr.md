@@ -4,6 +4,8 @@
 
 React listeleri için küçük bir filtre çubuğu. Filtreyi seç, değeri seç, bitti.
 
+**[Canlı demoyu dene →](https://turkpin.github.io/compact-filters/?locale=tr)**
+
 ![Bir fatura listesinin üstünde üç filtresi açık filtre çubuğu](screenshots/turkish.png)
 
 - Filtreler sen kullanana kadar gizli durur, çubuk hep küçük kalır.
@@ -252,6 +254,8 @@ npm run demo    # sonra demo/index.html dosyasını aç
 Demo küçük bir fatura listesi. Türkçe ya da koyu temayı görmek için adresin sonuna `?locale=tr` ya da `?theme=dark` ekle.
 
 `npm run screenshots`, bu README'deki görüntüleri yeniden çeker. Google Chrome gerekir.
+
+Aynı sayfa [canlı demo](https://turkpin.github.io/compact-filters/?locale=tr) olarak yayında. [`pages.yml`](../.github/workflows/pages.yml) her `main` değişikliğinde onu yayınlar. Bir kez açmak için: repo **Settings → Pages → Source: GitHub Actions**.
 
 ### Değişiklik gönder
 

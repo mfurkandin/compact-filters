@@ -4,6 +4,8 @@
 
 A small filter bar for React lists. Pick a filter, choose a value, done.
 
+**[Try the live demo →](https://turkpin.github.io/compact-filters/)**
+
 ![The filter bar with two active filters above an invoice list](https://raw.githubusercontent.com/turkpin/compact-filters/main/docs/screenshots/filter-bar.png)
 
 - Filters stay hidden until you use them, so the bar stays small.
@@ -253,6 +255,8 @@ npm run demo    # then open demo/index.html
 The demo is a small invoice list. Add `?locale=tr` or `?theme=dark` to the address to see Turkish or dark mode.
 
 `npm run screenshots` takes the pictures in this README again. It needs Google Chrome.
+
+The same page is the [live demo](https://turkpin.github.io/compact-filters/). [`pages.yml`](.github/workflows/pages.yml) publishes it whenever `main` changes. To turn it on once: repository **Settings → Pages → Source: GitHub Actions**.
 
 ### Send changes
 
