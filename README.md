@@ -1,4 +1,4 @@
-# compact-filters
+# @turkpin/compact-filters
 
 A compact, dynamic filter bar and date range picker for React. Built on [Radix UI](https://www.radix-ui.com/) and styled with Tailwind CSS v4 using [shadcn/ui](https://ui.shadcn.com/) theme tokens, so it picks up your app's colors, radius and dark mode.
 
@@ -16,7 +16,7 @@ A compact, dynamic filter bar and date range picker for React. Built on [Radix U
 ## Installation
 
 ```sh
-npm install compact-filters
+npm install @turkpin/compact-filters
 ```
 
 Peer dependencies (most shadcn/ui apps already have them):
@@ -31,7 +31,7 @@ The components are styled with Tailwind classes. Let Tailwind scan the package b
 
 ```css
 @import "tailwindcss";
-@source "../node_modules/compact-filters/dist";
+@source "../node_modules/@turkpin/compact-filters/dist";
 ```
 
 The path is relative to the CSS file. Colors come from the shadcn/ui CSS variables (`--primary`, `--muted`, `--accent`, `--popover`, `--input`, `--ring`…); if your app uses shadcn/ui, there is nothing else to set up.
@@ -42,7 +42,7 @@ The path is relative to the CSS file. Colors come from the shadcn/ui CSS variabl
 "use client";
 
 import { useState } from "react";
-import { FilterBar } from "compact-filters";
+import { FilterBar } from "@turkpin/compact-filters";
 import { CalendarDays, CircleDollarSign } from "lucide-react";
 
 const filters = [
@@ -116,7 +116,7 @@ A date range value is `{ preset, from, to }`: `preset` is a preset key or `"cust
 The same date range UI as a standalone button, e.g. for a dashboard.
 
 ```jsx
-import { DateRangePicker, createPresetRange } from "compact-filters";
+import { DateRangePicker, createPresetRange } from "@turkpin/compact-filters";
 
 const [range, setRange] = useState(() => createPresetRange("last30Days"));
 
@@ -139,10 +139,10 @@ const [range, setRange] = useState(() => createPresetRange("last30Days"));
 
 ## Keeping filters in the URL
 
-Date ranges are plain data, so the query string is a good home for them. The helpers have no framework dependency and are also available from `compact-filters/date-range`, which is safe for server code.
+Date ranges are plain data, so the query string is a good home for them. The helpers have no framework dependency and are also available from `@turkpin/compact-filters/date-range`, which is safe for server code.
 
 ```js
-import { buildDateRangeUrlParams, parseDateRangeParams } from "compact-filters/date-range";
+import { buildDateRangeUrlParams, parseDateRangeParams } from "@turkpin/compact-filters/date-range";
 
 // ?range=thisMonth  or  ?date_from=2026-10-01&date_to=2026-10-15
 const range = parseDateRangeParams(searchParams, { defaultPreset: null });
@@ -168,7 +168,7 @@ All keys are listed in [`src/labels.js`](src/labels.js) and exported as `DEFAULT
 
 ## Next.js
 
-The main entry starts with `"use client"`, so the components work in the App Router; render them from a client component. `compact-filters/date-range` has no directive and can be used in server components and route handlers.
+The main entry starts with `"use client"`, so the components work in the App Router; render them from a client component. `@turkpin/compact-filters/date-range` has no directive and can be used in server components and route handlers.
 
 ## Development
 
@@ -180,12 +180,27 @@ npm run build   # dist/index.js and dist/date-range.js
 
 The source is plain JavaScript and JSX in `src/`, bundled with esbuild by `scripts/build.js`. Peer dependencies stay external.
 
-## Publishing
+## Contributing
 
-1. Set the version: `npm version patch` (or `minor` / `major`)
-2. `npm publish` (runs the tests and the build first)
+Work happens on forks:
 
-To publish under an npm organization, rename the package (e.g. `@turkpin/compact-filters`) and add `"publishConfig": { "access": "public" }`.
+1. Fork `turkpin/compact-filters` and work on your fork's `dev` branch
+2. Open a pull request to `turkpin:dev`; CI runs the tests and the build
+3. When `dev` is ready to ship, it is merged into `main` with a pull request
+
+## Releasing
+
+Releases are published to npm by GitHub Actions ([`publish.yml`](.github/workflows/publish.yml)):
+
+1. On `main`, bump the version and push the tag:
+   ```sh
+   npm version patch   # or minor / major
+   git push upstream main --follow-tags
+   ```
+2. Create a GitHub release from the tag (`gh release create v0.1.1 --generate-notes`)
+3. The workflow tests, builds and publishes `@turkpin/compact-filters` with [provenance](https://docs.npmjs.com/generating-provenance-statements)
+
+The workflow needs an `NPM_TOKEN` repository secret: an npm automation (or granular) token that can publish to the `@turkpin` scope.
 
 ## License
 
