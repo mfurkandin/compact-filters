@@ -17,19 +17,30 @@ const SEARCHABLE_OPTION_THRESHOLD = 8;
  *
  * @param {Array}    filters  - Filter definitions:
  *                              select:     { key, label, icon?, options: [{ value, label }], defaultValue, searchable? }
- *                              date range: { key, label, icon?, type: "dateRange", defaultValue: null, presets? }
+ *                              date range: { key, label, icon?, type: "dateRange", defaultValue: null, presets?, allowOpenRange? }
  *                              `defaultValue` means "not filtering" and is not listed in `options`.
  *                              A date range value is { preset, from, to } with inclusive ISO "YYYY-MM-DD" dates.
+ *                              `allowOpenRange` also applies only a start or only an end day, the other one null.
  * @param {object}   values   - { [key]: value } current values, including the search key
  * @param {function} onChange - (patch) => void, called with the changed keys only, e.g. { status: "paid" }
  * @param {object}   search   - Optional search input: { key, placeholder }
  * @param {string}   locale   - "tr" | "en", built-in texts and date formats
+ * @param {string|function} dateFormat - Custom range dates: "locale" (default), "iso" ("2026-10-01") or (isoDate) => string
  * @param {object}   labels   - Overrides for the built-in texts, see labels.js
  * @param {string}   className
  */
-export function FilterBar({ filters = [], values = {}, onChange, search, locale = "tr", labels: labelOverrides, className }) {
+export function FilterBar({
+  filters = [],
+  values = {},
+  onChange,
+  search,
+  locale = "tr",
+  dateFormat = "locale",
+  labels: labelOverrides,
+  className,
+}) {
   const labels = resolveLabels(locale, labelOverrides);
-  const formatters = useDateRangeFormatters(locale);
+  const formatters = useDateRangeFormatters(locale, dateFormat);
   const [openKey, setOpenKey] = useState(null);
   const [pendingKey, setPendingKey] = useState(null);
   const addingKeyRef = useRef(null);
@@ -139,6 +150,7 @@ export function FilterBar({ filters = [], values = {}, onChange, search, locale 
           pending={!activeKeys.includes(filter.key)}
           open={openKey === filter.key}
           locale={locale}
+          dateFormat={dateFormat}
           labels={labels}
           onOpenChange={(open) => handleOpenChange(filter.key, open)}
           onSelect={(value) => handleSelect(filter, value)}
@@ -178,8 +190,8 @@ export function FilterBar({ filters = [], values = {}, onChange, search, locale 
   );
 }
 
-function FilterChip({ filter, value, pending, open, locale, labels, onOpenChange, onSelect, onRemove }) {
-  const formatters = useDateRangeFormatters(locale);
+function FilterChip({ filter, value, pending, open, locale, dateFormat, labels, onOpenChange, onSelect, onRemove }) {
+  const formatters = useDateRangeFormatters(locale, dateFormat);
   const Icon = filter.icon;
   const valueLabel = pending ? labels.select : getValueLabel(filter, value, labels, formatters);
 
@@ -209,6 +221,7 @@ function FilterChip({ filter, value, pending, open, locale, labels, onOpenChange
             <DateRangePanel
               value={pending ? null : value}
               presets={filter.presets}
+              allowOpenRange={filter.allowOpenRange}
               locale={locale}
               labels={labels}
               onApply={onSelect}

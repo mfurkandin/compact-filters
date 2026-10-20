@@ -17,6 +17,7 @@ import {
   fromIsoDate,
   isIsoDate,
   startOfMonth,
+  toIsoDate,
   todayIso,
 } from "./date-range";
 
@@ -147,12 +148,34 @@ function getDateRangeFormatters(locale) {
   return formattersCache.get(locale);
 }
 
-export function useDateRangeFormatters(locale = "tr") {
-  return getDateRangeFormatters(locale);
+/**
+ * @param {string} locale     - "tr" | "en"
+ * @param {string|function} dateFormat - How range dates are shown: "locale" (default, "01.10.2026" in tr),
+ *                              "iso" ("2026-10-01") or (isoDate) => string
+ */
+export function useDateRangeFormatters(locale = "tr", dateFormat = "locale") {
+  const formatters = getDateRangeFormatters(locale);
+
+  return useMemo(() => {
+    if (dateFormat === "iso") return { ...formatters, short: { format: toIsoDate } };
+    if (typeof dateFormat === "function") return { ...formatters, short: { format: (date) => dateFormat(toIsoDate(date)) } };
+    return formatters;
+  }, [formatters, dateFormat]);
 }
 
 /**
- * Short label for an applied range: the preset name, or "01.10.2026 – 15.10.2026" for a custom range.
+ * "01.10.2026 ve sonrası" or "31.10.2026 ve öncesi" for an open range with a single day, otherwise "".
+ */
+function formatOpenRangeLabel(value, labels, formatters) {
+  if (value.from && !value.to) return formatLabel(labels.since, { date: formatters.short.format(fromIsoDate(value.from)) });
+  if (!value.from && value.to) return formatLabel(labels.until, { date: formatters.short.format(fromIsoDate(value.to)) });
+  return "";
+}
+
+/**
+ * Short label for an applied range: the preset name, or "01.10.2026 – 15.10.2026" for a custom range
+ * (dates as `formatters.short` shows them, see useDateRangeFormatters).
+ * An open range shows its single day, e.g. "01.10.2026 ve sonrası".
  */
 export function formatDateRangeLabel(value, labels, formatters) {
   if (!value) return "";
@@ -160,7 +183,7 @@ export function formatDateRangeLabel(value, labels, formatters) {
   const preset = DATE_RANGE_PRESETS.find((option) => option.key === value.preset);
   if (preset) return getPresetLabel(labels, preset);
 
-  if (!value.from || !value.to) return "";
+  if (!value.from || !value.to) return formatOpenRangeLabel(value, labels, formatters);
   if (value.from === value.to) return formatters.short.format(fromIsoDate(value.from));
 
   return `${formatters.short.format(fromIsoDate(value.from))} – ${formatters.short.format(fromIsoDate(value.to))}`;
@@ -172,6 +195,7 @@ export function formatDateRangeLabel(value, labels, formatters) {
  *
  * @param {{preset: string, from: string, to: string}|null} value - ISO "YYYY-MM-DD" dates, both inclusive
  * @param {function} onApply       - Called with the applied `{ preset, from, to }`
+ * @param {boolean}  allowOpenRange - Apply with only a start or only an end day; the other one stays null
  * @param {function} onCancel      - Called on "cancel"
  * @param {function} onClear       - Optional, shows a "clear" action while a value is applied
  * @param {function} onReset       - Optional, shows a "reset" action while a value is applied
@@ -185,6 +209,7 @@ export function formatDateRangeLabel(value, labels, formatters) {
 export function DateRangePanel({
   value,
   onApply,
+  allowOpenRange = false,
   onCancel,
   onClear,
   onReset,
@@ -217,8 +242,8 @@ export function DateRangePanel({
     setLeftMonth(getLeftMonth(to ?? today));
   }
 
-  // "All time" applies without dates
-  const canApply = draft.preset === ALL_PRESET || Boolean(draft.from && draft.to);
+  // "All time" applies without dates, an open range with one of them
+  const canApply = draft.preset === ALL_PRESET || Boolean(draft.from && draft.to) || (allowOpenRange && Boolean(draft.from || draft.to));
 
   function handlePresetSelect(key) {
     if (key === CUSTOM_PRESET) {
@@ -237,11 +262,22 @@ export function DateRangePanel({
         return { preset: CUSTOM_PRESET, from: prev.from, to: day };
       }
 
+      // Only an end day picked (open range): a day before it becomes the start
+      if (!prev.from && prev.to && day <= prev.to) {
+        return { preset: CUSTOM_PRESET, from: day, to: prev.to };
+      }
+
       return { preset: CUSTOM_PRESET, from: day, to: null };
     });
   }
 
   function handleInputChange(field, inputValue) {
+    // Clearing a date input leaves an open range
+    if (allowOpenRange && inputValue === "") {
+      setDraft((prev) => ({ ...prev, preset: CUSTOM_PRESET, [field]: null }));
+      return;
+    }
+
     if (!isIsoDate(inputValue) || isDisabled(inputValue)) {
       return;
     }
@@ -414,7 +450,8 @@ export function DateRangePanel({
  * @param {string|null} resetPreset - Show a "reset" action back to this preset while another range is applied
  * @param {string}   align         - Popover alignment relative to the trigger
  * @param {string}   className     - Extra classes for the trigger
- * Remaining props are forwarded to DateRangePanel (presets, allowCustom, minDate, maxDate, locale, labels).
+ * @param {string|function} dateFormat - Trigger dates: "locale" (default), "iso" ("2026-10-01") or (isoDate) => string
+ * Remaining props are forwarded to DateRangePanel (presets, allowCustom, allowOpenRange, minDate, maxDate, locale, labels).
  */
 export function DateRangePicker({
   value,
@@ -424,10 +461,11 @@ export function DateRangePicker({
   align = "end",
   className,
   disabled = false,
+  dateFormat = "locale",
   ...panelProps
 }) {
   const labels = resolveLabels(panelProps.locale, panelProps.labels);
-  const formatters = useDateRangeFormatters(panelProps.locale);
+  const formatters = useDateRangeFormatters(panelProps.locale, dateFormat);
   const [open, setOpen] = useState(false);
 
   const presets = panelProps.presets ?? DATE_RANGE_PRESETS;
@@ -461,6 +499,11 @@ export function DateRangePicker({
               {formatters.short.format(fromIsoDate(value.from))}
               <ArrowRight className="size-3.5 text-muted-foreground" aria-hidden="true" />
               {formatters.short.format(fromIsoDate(value.to))}
+            </span>
+          )}
+          {value && Boolean(value.from) !== Boolean(value.to) && (
+            <span className="flex items-center px-2.5 tabular-nums" suppressHydrationWarning>
+              {formatOpenRangeLabel(value, labels, formatters)}
             </span>
           )}
         </button>

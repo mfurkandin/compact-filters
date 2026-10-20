@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { createElement as h } from "react";
 import { renderToString } from "react-dom/server";
-import { DateRangePicker, FilterBar } from "../dist/index.js";
+import { DateRangePanel, DateRangePicker, FilterBar } from "../dist/index.js";
 
 // Smoke tests against the build output, run `npm run build` first
 
@@ -56,6 +56,31 @@ describe("FilterBar", () => {
 
     assert.match(html, /02\.09\.2026 – 10\.09\.2026/);
   });
+
+  it("shows custom ranges in the given date format", () => {
+    const values = { date: { preset: "custom", from: "2026-09-02", to: "2026-09-10" } };
+
+    assert.match(renderToString(h(FilterBar, { filters, values, dateFormat: "iso" })), /2026-09-02 – 2026-09-10/);
+    assert.match(
+      renderToString(h(FilterBar, { filters, values, dateFormat: (date) => date.replaceAll("-", "/") })),
+      /2026\/09\/02 – 2026\/09\/10/,
+    );
+  });
+
+  it("shows open ranges with their single day", () => {
+    const openFilters = filters.map((filter) => (filter.type === "dateRange" ? { ...filter, allowOpenRange: true } : filter));
+
+    assert.match(
+      renderToString(h(FilterBar, { filters: openFilters, values: { date: { preset: "custom", from: "2026-10-01", to: null } } })),
+      /01\.10\.2026 ve sonrası/,
+    );
+    assert.match(
+      renderToString(
+        h(FilterBar, { locale: "en", dateFormat: "iso", filters: openFilters, values: { date: { preset: "custom", from: null, to: "2026-10-31" } } }),
+      ),
+      /Until 2026-10-31/,
+    );
+  });
 });
 
 describe("DateRangePicker", () => {
@@ -68,7 +93,35 @@ describe("DateRangePicker", () => {
     assert.match(html, /01\.10\.2026/);
   });
 
+  it("renders the trigger dates in the given date format", () => {
+    const html = renderToString(
+      h(DateRangePicker, { value: { preset: "thisMonth", from: "2026-10-01", to: "2026-10-15" }, dateFormat: "iso" }),
+    );
+
+    assert.match(html, /2026-10-01/);
+    assert.match(html, /2026-10-15/);
+    assert.doesNotMatch(html, /01\.10\.2026/);
+  });
+
+  it("renders the trigger with an open range", () => {
+    const html = renderToString(h(DateRangePicker, { value: { preset: "custom", from: "2026-10-01", to: null }, allowOpenRange: true }));
+
+    assert.match(html, /01\.10\.2026 ve sonrası/);
+  });
+
   it("falls back to the placeholder without a value", () => {
     assert.match(renderToString(h(DateRangePicker, { value: null, locale: "en" })), /Date Range/);
+  });
+});
+
+describe("DateRangePanel", () => {
+  const applyDisabled = (html) => /<button[^>]*disabled=""[^>]*>Uygula<\/button>/.test(html);
+
+  it("applies a single day only with allowOpenRange", () => {
+    const value = { preset: "custom", from: "2026-10-01", to: null };
+
+    assert.equal(applyDisabled(renderToString(h(DateRangePanel, { value }))), true);
+    assert.equal(applyDisabled(renderToString(h(DateRangePanel, { value, allowOpenRange: true }))), false);
+    assert.equal(applyDisabled(renderToString(h(DateRangePanel, { value: { preset: "custom", from: null, to: null }, allowOpenRange: true }))), true);
   });
 });
