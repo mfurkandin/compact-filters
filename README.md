@@ -131,6 +131,18 @@ The value you get looks like this:
 - `from` and `to` are days, and both days count. Send them to your API as they are.
 - `preset` is the name of the quick pick, or `"custom"` when the user picked days on the calendar.
 
+#### Only a start or only an end day
+
+Add `allowOpenRange: true` and the user can apply a single day:
+
+```js
+{ key: "date", label: "Date Range", type: "dateRange", defaultValue: null, allowOpenRange: true }
+```
+
+- Only a start day: `{ preset: "custom", from: "2026-10-01", to: null }`, that day and everything after. The chip reads "From 01.10.2026".
+- Only an end day: `{ preset: "custom", from: null, to: "2026-10-31" }`, that day and everything before. The chip reads "Until 31.10.2026".
+- Clear one of the date inputs to leave that side open.
+
 ## The date picker on its own
 
 You can also use the date picker as a separate button, for example on a dashboard:
@@ -176,6 +188,8 @@ const params = buildDateRangeUrlParams(date, { defaultPreset: null });
 
 A shared "This month" link always means the current month, even next month.
 
+With `allowOpenRange: true`, `parseDateRangeParams` also reads `?date_from=2026-10-01` or `?date_to=2026-10-31` alone.
+
 `@turkpin/compact-filters/date-range` is plain JavaScript. It also works on the server.
 
 ## Next.js
@@ -208,6 +222,7 @@ Use the components inside a client component (a file that starts with `"use clie
 | `searchable` | Always show the search box in the list |
 | `type` | `"dateRange"` for a date range |
 | `presets` | Which quick picks to show in a date range |
+| `allowOpenRange` | Let the user apply only a start or only an end day in a date range |
 | `icon` | An icon component |
 
 ### DateRangePicker
@@ -220,6 +235,7 @@ Use the components inside a client component (a file that starts with `"use clie
 | `resetPreset` | Show a "Reset" button that goes back to this quick pick |
 | `presets` | Which quick picks to show |
 | `allowCustom` | Let the user pick days on the calendar (default `true`) |
+| `allowOpenRange` | Let the user apply only a start or only an end day (default `false`) |
 | `minDate`, `maxDate` | The first and last day the user can pick. `maxDate` is today by default, `null` means no limit |
 | `align` | Where the popup opens: `"start"`, `"center"` or `"end"` (default) |
 | `locale`, `labels`, `dateFormat` | Same as FilterBar |
