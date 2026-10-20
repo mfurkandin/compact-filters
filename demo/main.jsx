@@ -108,6 +108,7 @@ function Demo() {
         type: "dateRange",
         defaultValue: null,
         presets: DATE_RANGE_PRESETS.filter((preset) => preset.key !== ALL_PRESET),
+        allowOpenRange: true,
       },
     ],
     [text],

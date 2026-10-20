@@ -130,6 +130,18 @@ Gelen değer şöyle görünür:
 - `from` ve `to` gündür ve iki gün de dahildir. API'ne olduğu gibi gönder.
 - `preset`, hızlı seçimin adıdır. Kullanıcı takvimden gün seçtiyse `"custom"` olur.
 
+#### Yalnızca başlangıç ya da yalnızca bitiş günü
+
+`allowOpenRange: true` eklersen kullanıcı tek bir günle de uygulayabilir:
+
+```js
+{ key: "date", label: "Tarih Aralığı", type: "dateRange", defaultValue: null, allowOpenRange: true }
+```
+
+- Yalnızca başlangıç günü: `{ preset: "custom", from: "2026-10-01", to: null }`, o gün ve sonrası. Chip'te "01.10.2026 ve sonrası" yazar.
+- Yalnızca bitiş günü: `{ preset: "custom", from: null, to: "2026-10-31" }`, o gün ve öncesi. Chip'te "31.10.2026 ve öncesi" yazar.
+- Bir tarafı açık bırakmak için o tarih kutusunu temizle.
+
 ## Tarih seçiciyi tek başına kullan
 
 Tarih seçiciyi ayrı bir buton olarak da kullanabilirsin, örneğin bir dashboard'da:
@@ -175,6 +187,8 @@ const params = buildDateRangeUrlParams(date, { defaultPreset: null });
 
 Paylaşılan bir "Bu ay" linki hep içinde bulunulan ayı gösterir, gelecek ay açılsa bile.
 
+`parseDateRangeParams` tek başına gelen `?date_from=2026-10-01` ya da `?date_to=2026-10-31` değerini de açık aralık olarak okur; yani `allowOpenRange` yalnızca filtreye yazılır. Tek günü yok saymak için `allowOpenRange: false` ver.
+
 `@turkpin/compact-filters/date-range` düz JavaScript'tir. Sunucuda da çalışır.
 
 ## Next.js
@@ -207,6 +221,7 @@ Component'leri bir client component içinde kullan (`"use client"` ile başlayan
 | `searchable` | Listedeki arama kutusunu hep göster |
 | `type` | Tarih aralığı için `"dateRange"` |
 | `presets` | Tarih aralığında hangi hızlı seçimler görünsün |
+| `allowOpenRange` | Tarih aralığında yalnızca başlangıç ya da yalnızca bitiş günüyle uygulanabilsin |
 | `icon` | Bir ikon component'i |
 
 ### DateRangePicker
@@ -219,6 +234,7 @@ Component'leri bir client component içinde kullan (`"use client"` ile başlayan
 | `resetPreset` | Bu hızlı seçime dönen bir "Sıfırla" butonu göster |
 | `presets` | Hangi hızlı seçimler görünsün |
 | `allowCustom` | Kullanıcı takvimden gün seçebilsin (varsayılan `true`) |
+| `allowOpenRange` | Yalnızca başlangıç ya da yalnızca bitiş günüyle uygulanabilsin (varsayılan `false`) |
 | `minDate`, `maxDate` | Seçilebilecek ilk ve son gün. `maxDate` varsayılan olarak bugündür, `null` sınır yok demek |
 | `align` | Pencerenin açılacağı yer: `"start"`, `"center"` ya da `"end"` (varsayılan) |
 | `locale`, `labels`, `dateFormat` | FilterBar'daki gibi |

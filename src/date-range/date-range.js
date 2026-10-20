@@ -195,10 +195,11 @@ function readSourceParam(source, key) {
  *
  * - `range=<preset>` wins and is resolved against today.
  * - `date_from` + `date_to` produce a custom range.
+ * - `date_from` or `date_to` alone produces an open range, e.g. `{ from, to: null }` (`allowOpenRange: false` ignores it).
  * - Otherwise `defaultPreset` is used (pass null to allow "no range").
  */
 export function parseDateRangeParams(source, options = {}) {
-  const { defaultPreset = "last30Days", keys = DATE_RANGE_PARAM_KEYS } = options;
+  const { defaultPreset = "last30Days", keys = DATE_RANGE_PARAM_KEYS, allowOpenRange = true } = options;
   const preset = readSourceParam(source, keys.preset);
 
   if (preset && isPresetKey(preset)) {
@@ -212,6 +213,15 @@ export function parseDateRangeParams(source, options = {}) {
     return from <= to
       ? { preset: CUSTOM_PRESET, from, to }
       : { preset: CUSTOM_PRESET, from: to, to: from };
+  }
+
+  // Only when the other side is missing: an invalid one still drops the range
+  if (allowOpenRange && isIsoDate(from) && !to) {
+    return { preset: CUSTOM_PRESET, from, to: null };
+  }
+
+  if (allowOpenRange && isIsoDate(to) && !from) {
+    return { preset: CUSTOM_PRESET, from: null, to };
   }
 
   return defaultPreset ? createPresetRange(defaultPreset) : null;
