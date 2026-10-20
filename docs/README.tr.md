@@ -187,7 +187,7 @@ const params = buildDateRangeUrlParams(date, { defaultPreset: null });
 
 Paylaşılan bir "Bu ay" linki hep içinde bulunulan ayı gösterir, gelecek ay açılsa bile.
 
-`allowOpenRange: true` verirsen `parseDateRangeParams` tek başına `?date_from=2026-10-01` ya da `?date_to=2026-10-31` da okur.
+`parseDateRangeParams` tek başına gelen `?date_from=2026-10-01` ya da `?date_to=2026-10-31` değerini de açık aralık olarak okur; yani `allowOpenRange` yalnızca filtreye yazılır. Tek günü yok saymak için `allowOpenRange: false` ver.
 
 `@turkpin/compact-filters/date-range` düz JavaScript'tir. Sunucuda da çalışır.
 

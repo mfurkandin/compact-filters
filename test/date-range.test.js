@@ -43,17 +43,17 @@ describe("parseDateRangeParams", () => {
     assert.equal(parseDateRangeParams({ date_from: "2026-02-31", date_to: "2026-03-01" }, { defaultPreset: null }), null);
   });
 
-  it("reads a single day as an open range only when allowed", () => {
-    assert.equal(parseDateRangeParams({ date_from: "2026-09-02" }, { defaultPreset: null }), null);
+  it("reads a single day as an open range", () => {
     assert.deepEqual(
-      parseDateRangeParams({ date_from: "2026-09-02" }, { defaultPreset: null, allowOpenRange: true }),
+      parseDateRangeParams({ date_from: "2026-09-02" }, { defaultPreset: null }),
       { preset: "custom", from: "2026-09-02", to: null },
     );
     assert.deepEqual(
-      parseDateRangeParams(new URLSearchParams("date_to=2026-09-10"), { defaultPreset: null, allowOpenRange: true }),
+      parseDateRangeParams(new URLSearchParams("date_to=2026-09-10"), { defaultPreset: null }),
       { preset: "custom", from: null, to: "2026-09-10" },
     );
-    assert.equal(parseDateRangeParams({ date_from: "2026-02-31" }, { defaultPreset: null, allowOpenRange: true }), null);
+    assert.equal(parseDateRangeParams({ date_from: "2026-02-31" }, { defaultPreset: null }), null);
+    assert.equal(parseDateRangeParams({ date_from: "2026-09-02" }, { defaultPreset: null, allowOpenRange: false }), null);
   });
 });
 

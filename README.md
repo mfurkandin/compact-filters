@@ -188,7 +188,7 @@ const params = buildDateRangeUrlParams(date, { defaultPreset: null });
 
 A shared "This month" link always means the current month, even next month.
 
-With `allowOpenRange: true`, `parseDateRangeParams` also reads `?date_from=2026-10-01` or `?date_to=2026-10-31` alone.
+`parseDateRangeParams` also reads `?date_from=2026-10-01` or `?date_to=2026-10-31` alone as an open range, so `allowOpenRange` only goes on the filter. Pass `allowOpenRange: false` to ignore a single day.
 
 `@turkpin/compact-filters/date-range` is plain JavaScript. It also works on the server.
 
