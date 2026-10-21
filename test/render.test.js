@@ -72,6 +72,7 @@ describe("FilterBar", () => {
 
     assert.match(renderToString(h(FilterBar, { filters, values })), /10\.10\.2026 ve sonrası \+ boşlar/);
     assert.match(renderToString(h(FilterBar, { filters, values, locale: "en", dateFormat: "iso" })), /From 2026-10-10 \+ empty/);
+    assert.doesNotMatch(renderToString(h(FilterBar, { filters, values: { date: { preset: "allTime", from: null, to: null, includeEmpty: true } } })), /\+ boşlar/);
   });
 
   it("shows open ranges with their single day", () => {
@@ -154,6 +155,13 @@ describe("DateRangePanel", () => {
     assert.doesNotMatch(checkbox(renderToString(h(DateRangePanel, { value, emptyValues: true }))), /checked/);
     assert.match(checkbox(renderToString(h(DateRangePanel, { value: { ...value, includeEmpty: true }, emptyValues: true }))), /checked/);
     assert.match(renderToString(h(DateRangePanel, { value, emptyValues: true })), /Boş olanları da göster/);
+  });
+
+  it("offers empty values only next to dates", () => {
+    const checkbox = (html) => html.match(/<input type="checkbox"[^>]*>/)[0];
+
+    assert.match(checkbox(renderToString(h(DateRangePanel, { value: { preset: "allTime", from: null, to: null }, emptyValues: true }))), /disabled=""/);
+    assert.doesNotMatch(checkbox(renderToString(h(DateRangePanel, { value: { preset: "custom", from: "2026-10-01", to: null }, emptyValues: true }))), /disabled=""/);
   });
 
   describe("on a narrow screen", () => {

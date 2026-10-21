@@ -249,7 +249,7 @@ export function buildDateRangeUrlParams(range, options = {}) {
 
   // Records without a date, kept only next to a range
   if (emptyKey) {
-    params[emptyKey] = range?.includeEmpty ? "1" : null;
+    params[emptyKey] = range?.includeEmpty && (range.from || range.to) ? "1" : null;
   }
 
   return params;

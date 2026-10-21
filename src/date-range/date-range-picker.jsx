@@ -191,7 +191,8 @@ export function formatDateRangeLabel(value, labels, formatters) {
   if (!value) return "";
 
   const label = formatRangeLabel(value, labels, formatters);
-  return value.includeEmpty ? `${label} ${labels.emptyIncluded}` : label;
+  // Without dates (e.g. "All time") empty ones are listed anyway
+  return value.includeEmpty && (value.from || value.to) ? `${label} ${labels.emptyIncluded}` : label;
 }
 
 function formatRangeLabel(value, labels, formatters) {
@@ -326,7 +327,8 @@ export function DateRangePanel({
     if (!canApply) return;
 
     const { includeEmpty: _, ...range } = draft;
-    onApply?.(emptyValues && includeEmpty ? { ...range, includeEmpty: true } : range);
+    const hasDates = Boolean(range.from || range.to);
+    onApply?.(emptyValues && includeEmpty && hasDates ? { ...range, includeEmpty: true } : range);
   }
 
   // "Custom" comes right after "All time", or first without it
@@ -423,11 +425,13 @@ export function DateRangePanel({
         </div>
         {emptyValues && (
           <div className="flex items-center gap-1.5 border-t px-3 pt-3 text-sm">
-            <label className="flex cursor-pointer items-center gap-2">
+            {/* Only means something next to dates: without them empty ones are listed anyway */}
+            <label className={cn("flex items-center gap-2", draft.from || draft.to ? "cursor-pointer" : "cursor-not-allowed opacity-50")}>
               <input
                 type="checkbox"
-                className="size-4 cursor-pointer accent-primary"
+                className="size-4 cursor-pointer accent-primary disabled:cursor-not-allowed"
                 checked={includeEmpty}
+                disabled={!draft.from && !draft.to}
                 onChange={(event) => setIncludeEmpty(event.target.checked)}
               />
               {labels.includeEmpty}

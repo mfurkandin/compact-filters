@@ -99,6 +99,8 @@ describe("buildDateRangeUrlParams", () => {
     );
     assert.equal(buildDateRangeUrlParams({ preset: "thisMonth", from: "2026-10-01", to: "2026-10-31" }, { defaultPreset: null, keys }).date_empty, null);
     assert.equal(buildDateRangeUrlParams(null, { keys }).date_empty, null);
+    // No dates, no empty: "All time" lists them anyway
+    assert.equal(buildDateRangeUrlParams({ preset: "allTime", from: null, to: null, includeEmpty: true }, { defaultPreset: null, keys }).date_empty, null);
   });
 });
 
