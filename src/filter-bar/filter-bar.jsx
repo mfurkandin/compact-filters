@@ -215,7 +215,10 @@ function FilterChip({ filter, value, pending, open, locale, dateFormat, labels, 
           >
             {Icon ? <Icon className="size-3.5 shrink-0" /> : null}
             <span className="shrink-0 opacity-75">{filter.label}:</span>
-            <span className="max-w-40 truncate font-medium">{valueLabel}</span>
+            {/* A date range with "+ empty" needs more room than an option label */}
+            <span className={cn("truncate font-medium", filter.type === "dateRange" ? "max-w-60" : "max-w-40")} title={valueLabel}>
+              {valueLabel}
+            </span>
             <ChevronDown className="size-3 shrink-0 opacity-60" />
           </button>
         </PopoverTrigger>
