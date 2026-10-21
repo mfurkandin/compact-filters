@@ -228,7 +228,8 @@ export function DateRangePanel({
   // The panel mounts when its popover opens, so the draft starts from the applied value
   const [draft, setDraft] = useState(() => value ?? { preset: CUSTOM_PRESET, from: null, to: null });
   const [hoverDate, setHoverDate] = useState(null);
-  const [leftMonth, setLeftMonth] = useState(() => getLeftMonth(value?.to ?? today));
+  // An open range with only a start day opens on that day, like typing it in
+  const [leftMonth, setLeftMonth] = useState(() => getLeftMonth(value?.to ?? (value?.from ? addMonths(value.from, 1) : today)));
 
   const rightMonth = addMonths(leftMonth, 1);
   const canGoNext = !upperBound || rightMonth < startOfMonth(upperBound);
