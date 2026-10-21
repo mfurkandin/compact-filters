@@ -17,10 +17,11 @@ const SEARCHABLE_OPTION_THRESHOLD = 8;
  *
  * @param {Array}    filters  - Filter definitions:
  *                              select:     { key, label, icon?, options: [{ value, label }], defaultValue, searchable? }
- *                              date range: { key, label, icon?, type: "dateRange", defaultValue: null, presets?, allowOpenRange? }
+ *                              date range: { key, label, icon?, type: "dateRange", defaultValue: null, presets?, allowOpenRange?, minDate?, maxDate? }
  *                              `defaultValue` means "not filtering" and is not listed in `options`.
  *                              A date range value is { preset, from, to } with inclusive ISO "YYYY-MM-DD" dates.
  *                              `allowOpenRange` also applies only a start or only an end day, the other one null.
+ *                              `minDate` / `maxDate` limit the calendar like DateRangePicker (`maxDate` today by default, null → no limit).
  * @param {object}   values   - { [key]: value } current values, including the search key
  * @param {function} onChange - (patch) => void, called with the changed keys only, e.g. { status: "paid" }
  * @param {object}   search   - Optional search input: { key, placeholder }
@@ -222,6 +223,8 @@ function FilterChip({ filter, value, pending, open, locale, dateFormat, labels, 
               value={pending ? null : value}
               presets={filter.presets}
               allowOpenRange={filter.allowOpenRange}
+              minDate={filter.minDate}
+              maxDate={filter.maxDate}
               locale={locale}
               labels={labels}
               onApply={onSelect}
