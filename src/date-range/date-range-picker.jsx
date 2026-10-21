@@ -121,10 +121,20 @@ function CalendarMonth({
 const DATE_INPUT_CLASS =
   "h-8 w-36 rounded-md border border-input bg-background px-2.5 text-sm text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
 
+// Wide screens show two months, narrow ones only the left one
+function isTwoMonths() {
+  return typeof window === "undefined" || window.matchMedia("(min-width: 640px)").matches;
+}
+
 // Keep the range end visible: in the right-hand month on wide screens, in the only month on narrow ones
 function getLeftMonth(to) {
-  const twoMonths = typeof window === "undefined" || window.matchMedia("(min-width: 640px)").matches;
-  return startOfMonth(twoMonths ? addMonths(to, -1) : to);
+  return startOfMonth(isTwoMonths() ? addMonths(to, -1) : to);
+}
+
+// Keep a start day visible in the left-hand month, unless the right-hand one would pass the last selectable day
+function getStartMonth(from, upperBound) {
+  if (isTwoMonths() && upperBound && startOfMonth(from) >= startOfMonth(upperBound)) return getLeftMonth(from);
+  return startOfMonth(from);
 }
 
 // Intl formatters are costly to create, so each locale builds them once
@@ -229,10 +239,12 @@ export function DateRangePanel({
   const [draft, setDraft] = useState(() => value ?? { preset: CUSTOM_PRESET, from: null, to: null });
   const [hoverDate, setHoverDate] = useState(null);
   // An open range with only a start day opens on that day, like typing it in
-  const [leftMonth, setLeftMonth] = useState(() => getLeftMonth(value?.to ?? (value?.from ? addMonths(value.from, 1) : today)));
+  const [leftMonth, setLeftMonth] = useState(() =>
+    value?.to ? getLeftMonth(value.to) : value?.from ? getStartMonth(value.from, upperBound) : getLeftMonth(today),
+  );
 
   const rightMonth = addMonths(leftMonth, 1);
-  const canGoNext = !upperBound || rightMonth < startOfMonth(upperBound);
+  const canGoNext = !upperBound || (isTwoMonths() ? rightMonth : leftMonth) < startOfMonth(upperBound);
   const canGoPrev = !minDate || leftMonth > startOfMonth(minDate);
 
   function isDisabled(day) {
@@ -292,7 +304,11 @@ export function DateRangePanel({
 
       return next;
     });
-    showRange(field === "to" ? inputValue : addMonths(inputValue, 1));
+    if (field === "to") {
+      showRange(inputValue);
+    } else {
+      setLeftMonth(getStartMonth(inputValue, upperBound));
+    }
   }
 
   function handleApply() {
