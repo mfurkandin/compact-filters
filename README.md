@@ -143,6 +143,18 @@ Add `allowOpenRange: true` and the user can apply a single day:
 - Only an end day: `{ preset: "custom", from: null, to: "2026-10-31" }`, that day and everything before. The chip reads "Until 31.10.2026".
 - Clear one of the date inputs to leave that side open.
 
+#### Records without a date
+
+Some dates can be empty, for example "updated" before the first update. Such records never fall in a date range. Add `emptyValues: true` and the panel shows a "Show empty ones too" checkbox with an info icon that explains this:
+
+```js
+{ key: "updated", label: "Updated", type: "dateRange", defaultValue: null, emptyValues: true, emptyValuesHint: "Records never updated have no update date." }
+```
+
+- When it is checked, the value gets `includeEmpty: true`, e.g. `{ preset: "custom", from: "2026-10-10", to: null, includeEmpty: true }`. The chip reads "From 10.10.2026 + empty".
+- Your API decides what it means. Usually: the range, or the date is empty.
+- `emptyValuesHint` is optional and replaces the generic text of the info icon.
+
 ## The date picker on its own
 
 You can also use the date picker as a separate button, for example on a dashboard:
@@ -226,6 +238,7 @@ Use the components inside a client component (a file that starts with `"use clie
 | `presets` | Which quick picks to show in a date range |
 | `allowOpenRange` | Let the user apply only a start or only an end day in a date range |
 | `minDate`, `maxDate` | The first and last day the user can pick in a date range. `maxDate` is today by default, `null` means no limit |
+| `emptyValues`, `emptyValuesHint` | Offer "Show empty ones too" in a date range, with an optional text for its info icon |
 | `icon` | An icon component |
 
 ### DateRangePicker

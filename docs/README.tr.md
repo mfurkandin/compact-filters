@@ -142,6 +142,18 @@ Gelen değer şöyle görünür:
 - Yalnızca bitiş günü: `{ preset: "custom", from: null, to: "2026-10-31" }`, o gün ve öncesi. Chip'te "31.10.2026 ve öncesi" yazar.
 - Bir tarafı açık bırakmak için o tarih kutusunu temizle.
 
+#### Tarihi boş olan kayıtlar
+
+Bazı tarihler boş olabilir, örneğin ilk güncellemeden önce "güncellenme". Bu kayıtlar hiçbir tarih aralığına girmez. `emptyValues: true` eklersen panelde "Boş olanları da göster" kutusu ve bunu anlatan bir bilgi ikonu görünür:
+
+```js
+{ key: "updated", label: "Güncellenme", type: "dateRange", defaultValue: null, emptyValues: true, emptyValuesHint: "Hiç güncellenmemiş kayıtların güncellenme tarihi yoktur." }
+```
+
+- Kutu işaretliyse değere `includeEmpty: true` eklenir, ör. `{ preset: "custom", from: "2026-10-10", to: null, includeEmpty: true }`. Chip'te "10.10.2026 ve sonrası + boşlar" yazar.
+- Ne anlama geldiğine API'n karar verir. Genelde: aralık ya da tarih boş.
+- `emptyValuesHint` isteğe bağlıdır, bilgi ikonundaki genel metnin yerine geçer.
+
 ## Tarih seçiciyi tek başına kullan
 
 Tarih seçiciyi ayrı bir buton olarak da kullanabilirsin, örneğin bir dashboard'da:
@@ -225,6 +237,7 @@ Component'leri bir client component içinde kullan (`"use client"` ile başlayan
 | `presets` | Tarih aralığında hangi hızlı seçimler görünsün |
 | `allowOpenRange` | Tarih aralığında yalnızca başlangıç ya da yalnızca bitiş günüyle uygulanabilsin |
 | `minDate`, `maxDate` | Tarih aralığında seçilebilecek ilk ve son gün. `maxDate` varsayılan olarak bugündür, `null` sınır yok demek |
+| `emptyValues`, `emptyValuesHint` | Tarih aralığında "Boş olanları da göster" seçeneği, bilgi ikonu için isteğe bağlı bir metinle |
 | `icon` | Bir ikon component'i |
 
 ### DateRangePicker

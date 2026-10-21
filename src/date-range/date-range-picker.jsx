@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowRight, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight } from "../icons";
+import { ArrowRight, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Info } from "../icons";
 import { cn } from "../cn";
 import { formatLabel, getPresetLabel, resolveLabels } from "../labels";
 import { Button } from "../primitives/button";
@@ -190,6 +190,12 @@ function formatOpenRangeLabel(value, labels, formatters) {
 export function formatDateRangeLabel(value, labels, formatters) {
   if (!value) return "";
 
+  const label = formatRangeLabel(value, labels, formatters);
+  return value.includeEmpty ? `${label} ${labels.emptyIncluded}` : label;
+}
+
+function formatRangeLabel(value, labels, formatters) {
+
   const preset = DATE_RANGE_PRESETS.find((option) => option.key === value.preset);
   if (preset) return getPresetLabel(labels, preset);
 
@@ -213,6 +219,8 @@ export function formatDateRangeLabel(value, labels, formatters) {
  * @param {boolean}  allowCustom   - Show the "custom range" option
  * @param {string}   minDate       - Earliest selectable ISO date
  * @param {string|null} maxDate    - Latest selectable ISO date (default today, null → no limit)
+ * @param {boolean}  emptyValues   - Offer "show empty ones too": the applied range gets `includeEmpty: true`
+ * @param {string}   emptyValuesHint - Optional text of its info popover, e.g. "Unread messages have no read date…"
  * @param {string}   locale        - "tr" | "en", date formats and built-in texts
  * @param {object}   labels        - Text overrides, see labels.js
  */
@@ -227,11 +235,14 @@ export function DateRangePanel({
   allowCustom = true,
   minDate,
   maxDate,
+  emptyValues = false,
+  emptyValuesHint,
   locale = "tr",
   labels: labelOverrides,
 }) {
   const labels = resolveLabels(locale, labelOverrides);
   const formatters = useDateRangeFormatters(locale);
+  const [includeEmpty, setIncludeEmpty] = useState(() => Boolean(value?.includeEmpty));
   const today = todayIso();
   const upperBound = maxDate === undefined ? today : maxDate;
 
@@ -312,7 +323,10 @@ export function DateRangePanel({
   }
 
   function handleApply() {
-    if (canApply) onApply?.(draft);
+    if (!canApply) return;
+
+    const { includeEmpty: _, ...range } = draft;
+    onApply?.(emptyValues && includeEmpty ? { ...range, includeEmpty: true } : range);
   }
 
   // "Custom" comes right after "All time", or first without it
@@ -407,7 +421,21 @@ export function DateRangePanel({
             />
           </div>
         </div>
-        <div className="flex flex-wrap items-end gap-3 border-t p-3">
+        {emptyValues && (
+          <div className="flex items-center gap-1.5 border-t px-3 pt-3 text-sm">
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                className="size-4 cursor-pointer accent-primary"
+                checked={includeEmpty}
+                onChange={(event) => setIncludeEmpty(event.target.checked)}
+              />
+              {labels.includeEmpty}
+            </label>
+            <EmptyValuesInfo label={labels.includeEmptyInfo} hint={emptyValuesHint ?? labels.includeEmptyHint} />
+          </div>
+        )}
+        <div className={cn("flex flex-wrap items-end gap-3 p-3", !emptyValues && "border-t")}>
           <label className="flex flex-col gap-1 text-xs text-muted-foreground">
             {labels.startDate}
             <input
@@ -455,6 +483,30 @@ export function DateRangePanel({
         </div>
       </div>
     </div>
+  );
+}
+
+// Why empty dates are left out of a range; opens on hover and on tap
+function EmptyValuesInfo({ label, hint }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label={label}
+          className="inline-flex size-5 cursor-help items-center justify-center rounded-full text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
+          onMouseEnter={() => setOpen(true)}
+          onMouseLeave={() => setOpen(false)}
+        >
+          <Info className="size-3.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent side="top" className="w-64 p-2 text-xs leading-relaxed" onOpenAutoFocus={(event) => event.preventDefault()}>
+        {hint}
+      </PopoverContent>
+    </Popover>
   );
 }
 
