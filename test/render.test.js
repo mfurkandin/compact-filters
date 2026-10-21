@@ -138,4 +138,30 @@ describe("DateRangePanel", () => {
 
     assert.match(html, /10 Mart 2027/);
   });
+
+  describe("on a narrow screen", () => {
+    // One month only: the left one
+    const firstMonth = (html) => html.match(/aria-label="\d{1,2} (\S+ \d{4})/)[1];
+    const nextDisabled = (html) => /<button[^>]*disabled=""[^>]*aria-label="Sonraki ay"/.test(html);
+    const renderNarrow = (props) => {
+      globalThis.window = { matchMedia: () => ({ matches: false }) };
+      try {
+        return renderToString(h(DateRangePanel, { allowOpenRange: true, ...props }));
+      } finally {
+        delete globalThis.window;
+      }
+    };
+
+    it("opens on the start day of an open range", () => {
+      assert.equal(firstMonth(renderNarrow({ value: { preset: "custom", from: "2027-03-10", to: null }, maxDate: null })), "Mart 2027");
+    });
+
+    it("goes on to the month of the last selectable day", () => {
+      const html = renderNarrow({ value: { preset: "custom", from: "2026-11-15", to: null }, maxDate: "2026-12-31" });
+
+      assert.equal(firstMonth(html), "Kasım 2026");
+      assert.equal(nextDisabled(html), false);
+      assert.equal(nextDisabled(renderNarrow({ value: { preset: "custom", from: "2026-12-15", to: null }, maxDate: "2026-12-31" })), true);
+    });
+  });
 });
