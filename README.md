@@ -223,6 +223,7 @@ Use the components inside a client component (a file that starts with `"use clie
 | `type` | `"dateRange"` for a date range |
 | `presets` | Which quick picks to show in a date range |
 | `allowOpenRange` | Let the user apply only a start or only an end day in a date range |
+| `minDate`, `maxDate` | The first and last day the user can pick in a date range. `maxDate` is today by default, `null` means no limit |
 | `icon` | An icon component |
 
 ### DateRangePicker
