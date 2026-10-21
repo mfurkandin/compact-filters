@@ -17,11 +17,13 @@ const SEARCHABLE_OPTION_THRESHOLD = 8;
  *
  * @param {Array}    filters  - Filter definitions:
  *                              select:     { key, label, icon?, options: [{ value, label }], defaultValue, searchable? }
- *                              date range: { key, label, icon?, type: "dateRange", defaultValue: null, presets?, allowOpenRange?, minDate?, maxDate? }
+ *                              date range: { key, label, icon?, type: "dateRange", defaultValue: null, presets?, allowOpenRange?, minDate?, maxDate?, emptyValues?, emptyValuesHint? }
  *                              `defaultValue` means "not filtering" and is not listed in `options`.
  *                              A date range value is { preset, from, to } with inclusive ISO "YYYY-MM-DD" dates.
  *                              `allowOpenRange` also applies only a start or only an end day, the other one null.
  *                              `minDate` / `maxDate` limit the calendar like DateRangePicker (`maxDate` today by default, null → no limit).
+ *                              `emptyValues` offers "show empty ones too", the value then gets `includeEmpty: true`;
+ *                              `emptyValuesHint` replaces the generic text of its info popover.
  * @param {object}   values   - { [key]: value } current values, including the search key
  * @param {function} onChange - (patch) => void, called with the changed keys only, e.g. { status: "paid" }
  * @param {object}   search   - Optional search input: { key, placeholder }
@@ -213,7 +215,10 @@ function FilterChip({ filter, value, pending, open, locale, dateFormat, labels, 
           >
             {Icon ? <Icon className="size-3.5 shrink-0" /> : null}
             <span className="shrink-0 opacity-75">{filter.label}:</span>
-            <span className="max-w-40 truncate font-medium">{valueLabel}</span>
+            {/* A date range with "+ empty" needs more room than an option label */}
+            <span className={cn("truncate font-medium", filter.type === "dateRange" ? "max-w-60" : "max-w-40")} title={valueLabel}>
+              {valueLabel}
+            </span>
             <ChevronDown className="size-3 shrink-0 opacity-60" />
           </button>
         </PopoverTrigger>
@@ -225,6 +230,8 @@ function FilterChip({ filter, value, pending, open, locale, dateFormat, labels, 
               allowOpenRange={filter.allowOpenRange}
               minDate={filter.minDate}
               maxDate={filter.maxDate}
+              emptyValues={filter.emptyValues}
+              emptyValuesHint={filter.emptyValuesHint}
               locale={locale}
               labels={labels}
               onApply={onSelect}

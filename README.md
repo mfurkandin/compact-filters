@@ -139,9 +139,21 @@ Add `allowOpenRange: true` and the user can apply a single day:
 { key: "date", label: "Date Range", type: "dateRange", defaultValue: null, allowOpenRange: true }
 ```
 
-- Only a start day: `{ preset: "custom", from: "2026-10-01", to: null }`, that day and everything after. The chip reads "From 01.10.2026".
-- Only an end day: `{ preset: "custom", from: null, to: "2026-10-31" }`, that day and everything before. The chip reads "Until 31.10.2026".
+- Only a start day: `{ preset: "custom", from: "2026-10-01", to: null }`, that day and everything after. The chip reads "From 10/01/2026" with `locale="en"`.
+- Only an end day: `{ preset: "custom", from: null, to: "2026-10-31" }`, that day and everything before. The chip reads "Until 10/31/2026" with `locale="en"`.
 - Clear one of the date inputs to leave that side open.
+
+#### Records without a date
+
+Some dates can be empty, for example "updated" before the first update. Such records never fall in a date range. Add `emptyValues: true` and the panel shows a "Show empty ones too" checkbox with an info icon that explains this:
+
+```js
+{ key: "updated", label: "Updated", type: "dateRange", defaultValue: null, emptyValues: true, emptyValuesHint: "Records never updated have no update date." }
+```
+
+- When it is checked, the value gets `includeEmpty: true`, e.g. `{ preset: "custom", from: "2026-10-10", to: null, includeEmpty: true }`. The chip reads "From 10/10/2026 + empty" with `locale="en"`.
+- Your API decides what it means. Usually: the range, or the date is empty.
+- `emptyValuesHint` is optional and replaces the generic text of the info icon.
 
 ## The date picker on its own
 
@@ -190,6 +202,8 @@ A shared "This month" link always means the current month, even next month.
 
 `parseDateRangeParams` also reads `?date_from=2026-10-01` or `?date_to=2026-10-31` alone as an open range, so `allowOpenRange` only goes on the filter. Pass `allowOpenRange: false` to ignore a single day.
 
+Give `keys` an `empty` key to keep `includeEmpty` in the URL too, e.g. `keys: { ...DATE_RANGE_PARAM_KEYS, empty: "date_empty" }` → `?date_from=2026-10-10&date_empty=1`.
+
 `@turkpin/compact-filters/date-range` is plain JavaScript. It also works on the server.
 
 ## Next.js
@@ -224,6 +238,7 @@ Use the components inside a client component (a file that starts with `"use clie
 | `presets` | Which quick picks to show in a date range |
 | `allowOpenRange` | Let the user apply only a start or only an end day in a date range |
 | `minDate`, `maxDate` | The first and last day the user can pick in a date range. `maxDate` is today by default, `null` means no limit |
+| `emptyValues`, `emptyValuesHint` | Offer "Show empty ones too" in a date range, with an optional text for its info icon |
 | `icon` | An icon component |
 
 ### DateRangePicker

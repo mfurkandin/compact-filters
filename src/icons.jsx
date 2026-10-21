@@ -36,6 +36,8 @@ export const ChevronLeft = icon(<path d="m15 18-6-6 6-6" />);
 
 export const ChevronRight = icon(<path d="m9 18 6-6-6-6" />);
 
+export const Info = icon(<><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></>);
+
 export const ListFilter = icon(<><path d="M2 5h20" /><path d="M6 12h12" /><path d="M9 19h6" /></>);
 
 export const Search = icon(<><path d="m21 21-4.34-4.34" /><circle cx="11" cy="11" r="8" /></>);
