@@ -189,6 +189,8 @@ Paylaşılan bir "Bu ay" linki hep içinde bulunulan ayı gösterir, gelecek ay 
 
 `parseDateRangeParams` tek başına gelen `?date_from=2026-10-01` ya da `?date_to=2026-10-31` değerini de açık aralık olarak okur; yani `allowOpenRange` yalnızca filtreye yazılır. Tek günü yok saymak için `allowOpenRange: false` ver.
 
+`includeEmpty`'yi URL'de de tutmak için `keys`'e bir `empty` anahtarı ver, ör. `keys: { ...DATE_RANGE_PARAM_KEYS, empty: "date_empty" }` → `?date_from=2026-10-10&date_empty=1`.
+
 `@turkpin/compact-filters/date-range` düz JavaScript'tir. Sunucuda da çalışır.
 
 ## Next.js

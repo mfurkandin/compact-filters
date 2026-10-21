@@ -190,6 +190,8 @@ A shared "This month" link always means the current month, even next month.
 
 `parseDateRangeParams` also reads `?date_from=2026-10-01` or `?date_to=2026-10-31` alone as an open range, so `allowOpenRange` only goes on the filter. Pass `allowOpenRange: false` to ignore a single day.
 
+Give `keys` an `empty` key to keep `includeEmpty` in the URL too, e.g. `keys: { ...DATE_RANGE_PARAM_KEYS, empty: "date_empty" }` → `?date_from=2026-10-10&date_empty=1`.
+
 `@turkpin/compact-filters/date-range` is plain JavaScript. It also works on the server.
 
 ## Next.js

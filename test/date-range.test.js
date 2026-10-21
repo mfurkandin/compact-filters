@@ -1,6 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
+  DATE_RANGE_PARAM_KEYS,
   buildDateRangeUrlParams,
   countDays,
   createPresetRange,
@@ -55,6 +56,20 @@ describe("parseDateRangeParams", () => {
     assert.equal(parseDateRangeParams({ date_from: "2026-02-31" }, { defaultPreset: null }), null);
     assert.equal(parseDateRangeParams({ date_from: "2026-09-02" }, { defaultPreset: null, allowOpenRange: false }), null);
   });
+
+  it("reads includeEmpty from the empty key, only next to a range", () => {
+    const keys = { preset: "updated_range", from: "updated_from", to: "updated_to", empty: "updated_empty" };
+
+    assert.deepEqual(
+      parseDateRangeParams({ updated_from: "2026-10-10", updated_empty: "1" }, { defaultPreset: null, keys }),
+      { preset: "custom", from: "2026-10-10", to: null, includeEmpty: true },
+    );
+    assert.equal(parseDateRangeParams({ updated_range: "thisMonth", updated_empty: "1" }, { defaultPreset: null, keys }).includeEmpty, true);
+    assert.equal("includeEmpty" in parseDateRangeParams({ updated_from: "2026-10-10", updated_empty: "0" }, { defaultPreset: null, keys }), false);
+    assert.equal(parseDateRangeParams({ updated_empty: "1" }, { defaultPreset: null, keys }), null);
+    // Without an empty key the param is not read
+    assert.equal("includeEmpty" in parseDateRangeParams({ date_from: "2026-10-10", date_empty: "1" }, { defaultPreset: null }), false);
+  });
 });
 
 describe("buildDateRangeUrlParams", () => {
@@ -73,6 +88,17 @@ describe("buildDateRangeUrlParams", () => {
       { range: null, date_from: "2026-09-02", date_to: null },
     );
     assert.deepEqual(buildDateRangeUrlParams(null), { range: null, date_from: null, date_to: null });
+  });
+
+  it("writes includeEmpty to the empty key", () => {
+    const keys = { ...DATE_RANGE_PARAM_KEYS, empty: "date_empty" };
+
+    assert.deepEqual(
+      buildDateRangeUrlParams({ preset: "custom", from: "2026-10-10", to: null, includeEmpty: true }, { defaultPreset: null, keys }),
+      { range: null, date_from: "2026-10-10", date_to: null, date_empty: "1" },
+    );
+    assert.equal(buildDateRangeUrlParams({ preset: "thisMonth", from: "2026-10-01", to: "2026-10-31" }, { defaultPreset: null, keys }).date_empty, null);
+    assert.equal(buildDateRangeUrlParams(null, { keys }).date_empty, null);
   });
 });
 
