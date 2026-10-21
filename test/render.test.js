@@ -124,4 +124,12 @@ describe("DateRangePanel", () => {
     assert.equal(applyDisabled(renderToString(h(DateRangePanel, { value, allowOpenRange: true }))), false);
     assert.equal(applyDisabled(renderToString(h(DateRangePanel, { value: { preset: "custom", from: null, to: null }, allowOpenRange: true }))), true);
   });
+
+  it("limits the days to today unless maxDate is null", () => {
+    const value = { preset: "custom", from: "2026-10-01", to: null };
+
+    assert.match(renderToString(h(DateRangePanel, { value })), /type="date"[^>]*max="\d{4}-\d{2}-\d{2}"/);
+    assert.doesNotMatch(renderToString(h(DateRangePanel, { value, maxDate: null })), /max="/);
+    assert.match(renderToString(h(DateRangePanel, { value, maxDate: "2027-12-31" })), /max="2027-12-31"/);
+  });
 });

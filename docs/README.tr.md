@@ -222,6 +222,7 @@ Component'leri bir client component içinde kullan (`"use client"` ile başlayan
 | `type` | Tarih aralığı için `"dateRange"` |
 | `presets` | Tarih aralığında hangi hızlı seçimler görünsün |
 | `allowOpenRange` | Tarih aralığında yalnızca başlangıç ya da yalnızca bitiş günüyle uygulanabilsin |
+| `minDate`, `maxDate` | Tarih aralığında seçilebilecek ilk ve son gün. `maxDate` varsayılan olarak bugündür, `null` sınır yok demek |
 | `icon` | Bir ikon component'i |
 
 ### DateRangePicker
