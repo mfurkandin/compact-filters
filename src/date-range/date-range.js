@@ -197,8 +197,20 @@ function readSourceParam(source, key) {
  * - `date_from` + `date_to` produce a custom range.
  * - `date_from` or `date_to` alone produces an open range, e.g. `{ from, to: null }` (`allowOpenRange: false` ignores it).
  * - Otherwise `defaultPreset` is used (pass null to allow "no range").
+ * - With a `keys.empty` key, `<empty>=1` adds `includeEmpty: true` to the range (see `emptyValues`).
  */
 export function parseDateRangeParams(source, options = {}) {
+  const range = parseDateRange(source, options);
+  const emptyKey = options.keys?.empty;
+
+  if (range && emptyKey && readSourceParam(source, emptyKey) === "1") {
+    return { ...range, includeEmpty: true };
+  }
+
+  return range;
+}
+
+function parseDateRange(source, options) {
   const { defaultPreset = "last30Days", keys = DATE_RANGE_PARAM_KEYS, allowOpenRange = true } = options;
   const preset = readSourceParam(source, keys.preset);
 
@@ -232,6 +244,18 @@ export function parseDateRangeParams(source, options = {}) {
  * preset is removed from the URL entirely to keep links clean.
  */
 export function buildDateRangeUrlParams(range, options = {}) {
+  const params = buildRangeUrlParams(range, options);
+  const emptyKey = options.keys?.empty;
+
+  // Records without a date, kept only next to a range
+  if (emptyKey) {
+    params[emptyKey] = range?.includeEmpty && (range.from || range.to) ? "1" : null;
+  }
+
+  return params;
+}
+
+function buildRangeUrlParams(range, options) {
   const { defaultPreset = "last30Days", keys = DATE_RANGE_PARAM_KEYS } = options;
 
   if (!range) {
