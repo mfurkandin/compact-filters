@@ -164,6 +164,14 @@ describe("DateRangePanel", () => {
     assert.doesNotMatch(checkbox(renderToString(h(DateRangePanel, { value: { preset: "custom", from: "2026-10-01", to: null }, emptyValues: true }))), /disabled=""/);
   });
 
+  it("gives screen readers the empty values hint", () => {
+    const html = renderToString(h(DateRangePanel, { value: { preset: "custom", from: "2026-10-01", to: null }, emptyValues: true, emptyValuesHint: "Okunmamış mesajlar" }));
+    const id = html.match(/aria-describedby="([^"]+)"/)[1];
+
+    assert.match(html, new RegExp(`<span id="${id}" class="sr-only">Okunmamış mesajlar</span>`));
+    assert.equal(html.match(new RegExp(`aria-describedby="${id}"`, "g")).length, 2);
+  });
+
   describe("on a narrow screen", () => {
     // One month only: the left one
     const firstMonth = (html) => html.match(/aria-label="\d{1,2} (\S+ \d{4})/)[1];

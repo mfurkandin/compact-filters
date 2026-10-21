@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import { ArrowRight, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Info } from "../icons";
 import { cn } from "../cn";
 import { formatLabel, getPresetLabel, resolveLabels } from "../labels";
@@ -244,6 +244,7 @@ export function DateRangePanel({
   const labels = resolveLabels(locale, labelOverrides);
   const formatters = useDateRangeFormatters(locale);
   const [includeEmpty, setIncludeEmpty] = useState(() => Boolean(value?.includeEmpty));
+  const emptyHintId = useId();
   const today = todayIso();
   const upperBound = maxDate === undefined ? today : maxDate;
 
@@ -432,11 +433,12 @@ export function DateRangePanel({
                 className="size-4 cursor-pointer accent-primary disabled:cursor-not-allowed"
                 checked={includeEmpty}
                 disabled={!draft.from && !draft.to}
+                aria-describedby={emptyHintId}
                 onChange={(event) => setIncludeEmpty(event.target.checked)}
               />
               {labels.includeEmpty}
             </label>
-            <EmptyValuesInfo label={labels.includeEmptyInfo} hint={emptyValuesHint ?? labels.includeEmptyHint} />
+            <EmptyValuesInfo label={labels.includeEmptyInfo} hint={emptyValuesHint ?? labels.includeEmptyHint} hintId={emptyHintId} />
           </div>
         )}
         <div className={cn("flex flex-wrap items-end gap-3 p-3", !emptyValues && "border-t")}>
@@ -490,9 +492,10 @@ export function DateRangePanel({
   );
 }
 
-// Why empty dates are left out of a range; opens on hover and on tap
-function EmptyValuesInfo({ label, hint }) {
+// Why empty dates are left out of a range; opens on hover, on tap and from the keyboard
+function EmptyValuesInfo({ label, hint, hintId }) {
   const [open, setOpen] = useState(false);
+  const pointerType = useRef(null);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -500,14 +503,36 @@ function EmptyValuesInfo({ label, hint }) {
         <button
           type="button"
           aria-label={label}
+          aria-describedby={hintId}
           className="inline-flex size-5 cursor-help items-center justify-center rounded-full text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
-          onMouseEnter={() => setOpen(true)}
-          onMouseLeave={() => setOpen(false)}
+          // Hover only for a real mouse: a tap also fires mouse events before its click
+          onPointerEnter={(event) => event.pointerType === "mouse" && setOpen(true)}
+          onPointerLeave={(event) => event.pointerType === "mouse" && setOpen(false)}
+          onPointerDown={(event) => {
+            pointerType.current = event.pointerType;
+          }}
+          onClick={(event) => {
+            // Handled here instead of the trigger's toggle: a mouse click keeps the hover open, taps and keys toggle
+            event.preventDefault();
+            const isMouse = pointerType.current === "mouse";
+            pointerType.current = null;
+            setOpen((prev) => isMouse || !prev);
+          }}
         >
           <Info className="size-3.5" />
         </button>
       </PopoverTrigger>
-      <PopoverContent side="top" className="w-64 p-2 text-xs leading-relaxed" onOpenAutoFocus={(event) => event.preventDefault()}>
+      {/* Screen readers get the text from the button, the popover is only visual */}
+      <span id={hintId} className="sr-only">
+        {hint}
+      </span>
+      <PopoverContent
+        side="top"
+        className="w-64 p-2 text-xs leading-relaxed"
+        aria-hidden="true"
+        onOpenAutoFocus={(event) => event.preventDefault()}
+        onCloseAutoFocus={(event) => event.preventDefault()}
+      >
         {hint}
       </PopoverContent>
     </Popover>
