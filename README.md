@@ -139,8 +139,8 @@ Add `allowOpenRange: true` and the user can apply a single day:
 { key: "date", label: "Date Range", type: "dateRange", defaultValue: null, allowOpenRange: true }
 ```
 
-- Only a start day: `{ preset: "custom", from: "2026-10-01", to: null }`, that day and everything after. The chip reads "From 01.10.2026".
-- Only an end day: `{ preset: "custom", from: null, to: "2026-10-31" }`, that day and everything before. The chip reads "Until 31.10.2026".
+- Only a start day: `{ preset: "custom", from: "2026-10-01", to: null }`, that day and everything after. The chip reads "From 10/01/2026" with `locale="en"`.
+- Only an end day: `{ preset: "custom", from: null, to: "2026-10-31" }`, that day and everything before. The chip reads "Until 10/31/2026" with `locale="en"`.
 - Clear one of the date inputs to leave that side open.
 
 #### Records without a date
@@ -151,7 +151,7 @@ Some dates can be empty, for example "updated" before the first update. Such rec
 { key: "updated", label: "Updated", type: "dateRange", defaultValue: null, emptyValues: true, emptyValuesHint: "Records never updated have no update date." }
 ```
 
-- When it is checked, the value gets `includeEmpty: true`, e.g. `{ preset: "custom", from: "2026-10-10", to: null, includeEmpty: true }`. The chip reads "From 10.10.2026 + empty".
+- When it is checked, the value gets `includeEmpty: true`, e.g. `{ preset: "custom", from: "2026-10-10", to: null, includeEmpty: true }`. The chip reads "From 10/10/2026 + empty" with `locale="en"`.
 - Your API decides what it means. Usually: the range, or the date is empty.
 - `emptyValuesHint` is optional and replaces the generic text of the info icon.
 
