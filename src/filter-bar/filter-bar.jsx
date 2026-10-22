@@ -16,11 +16,12 @@ const SEARCHABLE_OPTION_THRESHOLD = 8;
  * Clicking a chip changes its value, × removes it (back to its default value).
  *
  * @param {Array}    filters  - Filter definitions:
- *                              select:     { key, label, icon?, options: [{ value, label }], defaultValue, searchable?, onSearchChange? }
+ *                              select:     { key, label, icon?, options: [{ value, label }], defaultValue, searchable?, onSearchChange?, valueLabel? }
  *                              date range: { key, label, icon?, type: "dateRange", defaultValue: null, presets?, allowOpenRange?, minDate?, maxDate?, emptyValues?, emptyValuesHint? }
  *                              `defaultValue` means "not filtering" and is not listed in `options`.
  *                              `onSearchChange` (query) => void makes the option search remote: the typed text goes to the app,
  *                              which passes the matching `options` back; they are not filtered here. "" again on close.
+ *                              `valueLabel` is the chip text for a value that is not in `options`.
  *                              A date range value is { preset, from, to } with inclusive ISO "YYYY-MM-DD" dates.
  *                              `allowOpenRange` also applies only a start or only an end day, the other one null.
  *                              `minDate` / `maxDate` limit the calendar like DateRangePicker (`maxDate` today by default, null → no limit).
@@ -373,5 +374,5 @@ function isFilterActive(filter, values) {
 
 function getValueLabel(filter, value, labels, formatters) {
   if (filter.type === "dateRange") return formatDateRangeLabel(value, labels, formatters);
-  return filter.options?.find((option) => option.value === value)?.label ?? value;
+  return filter.options?.find((option) => option.value === value)?.label ?? filter.valueLabel ?? value;
 }
