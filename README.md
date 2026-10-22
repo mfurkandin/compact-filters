@@ -114,6 +114,13 @@ That is all. Here is what each part does:
 
 - Do not add `"all"` to `options`. Removing the chip already means "all".
 - Long list? A search box shows up in it by itself (more than 8 options). Add `searchable: true` to always show it.
+- Options from an API, one page at a time? Add `onSearchChange` and the search box sends you what the user types instead of searching the options itself. Load the matching options and pass them as `options`:
+
+  ```js
+  { key: "customer", label: "Customer", defaultValue: "all", options: customers, onSearchChange: setCustomerQuery }
+  ```
+
+  It is called on every key press, so wait a little before calling your API. When the list closes, it is called with `""` once more.
 - Want an icon? Add `icon: SomeIcon`. Any React component works, for example one from `lucide-react`.
 
 ### A date range
@@ -234,6 +241,7 @@ Use the components inside a client component (a file that starts with `"use clie
 | `defaultValue` | The value that means "no filter" (`"all"`, `null`…) |
 | `options` | `[{ value, label }]`, for a list of choices |
 | `searchable` | Always show the search box in the list |
+| `onSearchChange` | `(query) => {}`, search the options yourself, e.g. on your API. The list shows `options` as they are |
 | `type` | `"dateRange"` for a date range |
 | `presets` | Which quick picks to show in a date range |
 | `allowOpenRange` | Let the user apply only a start or only an end day in a date range |
