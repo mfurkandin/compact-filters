@@ -123,6 +123,41 @@ That is all. Here is what each part does:
   It is called on every key press, so wait a little before calling your API. When the list closes, it is called with `""` once more. Set `loading: true` while you load and an empty list says "Loading…" instead of "No results".
 
   The picked customer may not be on the page you loaded. Give its name as `valueLabel` and the chip shows it instead of the bare value, e.g. `valueLabel: "Ada Yılmaz"`.
+
+  With ids as values, keep the picked customer's name yourself: take it from your options when the user picks one, or ask your API for it when the id comes from the URL:
+
+  ```jsx
+  const [customerQuery, setCustomerQuery] = useState("");
+  // Your API, e.g. [{ value: "42", label: "Ada Yılmaz" }]. Ids as strings, a URL gives them back as strings
+  const { customers, loading } = useCustomerSearch(customerQuery);
+  const [picked, setPicked] = useState(null); // { value, label } of the selected customer
+
+  // The id came from the URL (or the back button): ask your API for its name
+  useEffect(() => {
+    if (values.customer === "all" || picked?.value === values.customer) return;
+    getCustomer(values.customer).then((customer) => setPicked({ value: customer.id, label: customer.name }));
+  }, [values.customer]);
+
+  function handleChange(changes) {
+    // Picked from the list: the name is in your options
+    if ("customer" in changes) setPicked(customers.find((customer) => customer.value === changes.customer) ?? null);
+    setValues({ ...values, ...changes });
+  }
+
+  const filters = [
+    {
+      key: "customer",
+      label: "Customer",
+      defaultValue: "all",
+      options: customers,
+      loading,
+      onSearchChange: setCustomerQuery,
+      valueLabel: picked?.label,
+    },
+  ];
+
+  <FilterBar filters={filters} values={values} onChange={handleChange} />
+  ```
 - Want an icon? Add `icon: SomeIcon`. Any React component works, for example one from `lucide-react`.
 
 ### A date range
