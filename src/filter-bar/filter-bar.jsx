@@ -16,11 +16,12 @@ const SEARCHABLE_OPTION_THRESHOLD = 8;
  * Clicking a chip changes its value, × removes it (back to its default value).
  *
  * @param {Array}    filters  - Filter definitions:
- *                              select:     { key, label, icon?, options: [{ value, label }], defaultValue, searchable?, onSearchChange?, valueLabel? }
+ *                              select:     { key, label, icon?, options: [{ value, label }], defaultValue, searchable?, onSearchChange?, loading?, valueLabel? }
  *                              date range: { key, label, icon?, type: "dateRange", defaultValue: null, presets?, allowOpenRange?, minDate?, maxDate?, emptyValues?, emptyValuesHint? }
  *                              `defaultValue` means "not filtering" and is not listed in `options`.
  *                              `onSearchChange` (query) => void makes the option search remote: the typed text goes to the app,
  *                              which passes the matching `options` back; they are not filtered here. "" again on close.
+ *                              `loading` shows "Loading…" instead of "No results" while the app fetches them.
  *                              `valueLabel` is the chip text for a value that is not in `options`.
  *                              A date range value is { preset, from, to } with inclusive ISO "YYYY-MM-DD" dates.
  *                              `allowOpenRange` also applies only a start or only an end day, the other one null.
@@ -338,7 +339,12 @@ function FilterOptions({ filter, value, labels, onSelect }) {
           </div>
         </div>
       )}
-      <div ref={listRef} role="listbox" aria-label={filter.label} className="max-h-64 overflow-y-auto p-1 pt-0">
+      <div
+        ref={listRef}
+        role="listbox"
+        aria-label={filter.label}
+        aria-busy={filter.loading ? true : undefined}
+        className="max-h-64 overflow-y-auto p-1 pt-0">
         {visibleOptions.length ? (
           visibleOptions.map((option) => {
             const selected = option.value === value;
@@ -361,7 +367,9 @@ function FilterOptions({ filter, value, labels, onSelect }) {
             );
           })
         ) : (
-          <div className="px-2 py-4 text-center text-sm text-muted-foreground">{labels.noResults}</div>
+          <div className="px-2 py-4 text-center text-sm text-muted-foreground">
+            {filter.loading ? labels.loading : labels.noResults}
+          </div>
         )}
       </div>
     </div>

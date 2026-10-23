@@ -88,4 +88,19 @@ describe("FilterBar option search", () => {
     assert.deepEqual(queries, ["ada", ""]);
     await bar.unmount();
   });
+
+  it("says loading instead of no results", async () => {
+    const filter = { key: "customer", label: "Müşteri", defaultValue: "all", options: [], onSearchChange: () => {}, valueLabel: "Can Demir" };
+    const bar = await renderBar(filter);
+    await bar.open();
+    assert.match(bar.listText(), /Sonuç bulunamadı/);
+
+    await bar.render({ filters: [{ ...filter, loading: true }] });
+    assert.match(bar.listText(), /Yükleniyor…/);
+    assert.equal(document.querySelector("[role='listbox']").getAttribute("aria-busy"), "true");
+
+    await bar.render({ filters: [{ ...filter, loading: true }], locale: "en" });
+    assert.match(bar.listText(), /Loading…/);
+    await bar.unmount();
+  });
 });

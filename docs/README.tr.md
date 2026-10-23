@@ -119,7 +119,7 @@ Hepsi bu. Her parça ne işe yarar:
   { key: "customer", label: "Müşteri", defaultValue: "all", options: customers, onSearchChange: setCustomerQuery }
   ```
 
-  Her tuşta çağrılır, API'ye gitmeden önce biraz bekle. Liste kapanınca bir kez de `""` ile çağrılır.
+  Her tuşta çağrılır, API'ye gitmeden önce biraz bekle. Liste kapanınca bir kez de `""` ile çağrılır. Yüklerken `loading: true` ver, boş liste "Sonuç bulunamadı" yerine "Yükleniyor…" der.
 
   Seçili müşteri yüklediğin sayfada olmayabilir. Adını `valueLabel` olarak ver, kutucuk çıplak değer yerine onu gösterir, örneğin `valueLabel: "Ada Yılmaz"`.
 - İkon mu istiyorsun? `icon: BirIkon` ekle. Herhangi bir React component'i olur, örneğin `lucide-react`'ten biri.
@@ -243,6 +243,7 @@ Component'leri bir client component içinde kullan (`"use client"` ile başlayan
 | `options` | `[{ value, label }]`, seçenek listesi için |
 | `searchable` | Listedeki arama kutusunu hep göster |
 | `onSearchChange` | `(query) => {}`, seçeneklerde sen ara, örneğin API'nde. Liste `options`'ı olduğu gibi gösterir |
+| `loading` | Seçenekleri yüklerken `true`, boş liste o sırada "Yükleniyor…" der |
 | `valueLabel` | `options` içinde olmayan bir değer için kutucuk yazısı |
 | `type` | Tarih aralığı için `"dateRange"` |
 | `presets` | Tarih aralığında hangi hızlı seçimler görünsün |

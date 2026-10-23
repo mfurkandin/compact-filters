@@ -120,7 +120,7 @@ That is all. Here is what each part does:
   { key: "customer", label: "Customer", defaultValue: "all", options: customers, onSearchChange: setCustomerQuery }
   ```
 
-  It is called on every key press, so wait a little before calling your API. When the list closes, it is called with `""` once more.
+  It is called on every key press, so wait a little before calling your API. When the list closes, it is called with `""` once more. Set `loading: true` while you load and an empty list says "Loading…" instead of "No results".
 
   The picked customer may not be on the page you loaded. Give its name as `valueLabel` and the chip shows it instead of the bare value, e.g. `valueLabel: "Ada Yılmaz"`.
 - Want an icon? Add `icon: SomeIcon`. Any React component works, for example one from `lucide-react`.
@@ -244,6 +244,7 @@ Use the components inside a client component (a file that starts with `"use clie
 | `options` | `[{ value, label }]`, for a list of choices |
 | `searchable` | Always show the search box in the list |
 | `onSearchChange` | `(query) => {}`, search the options yourself, e.g. on your API. The list shows `options` as they are |
+| `loading` | `true` while you load the options, an empty list then says "Loading…" |
 | `valueLabel` | The chip text for a value that is not in `options` |
 | `type` | `"dateRange"` for a date range |
 | `presets` | Which quick picks to show in a date range |
