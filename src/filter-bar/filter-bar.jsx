@@ -312,7 +312,8 @@ function FilterOptions({ filter, value, labels, onSelect }) {
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
       focusOption(-1);
-    } else if (event.key === "Enter" && event.target.tagName === "INPUT" && visibleOptions.length === 1) {
+    } else if (event.key === "Enter" && event.target.tagName === "INPUT" && !remoteSearch && visibleOptions.length === 1) {
+      // Not with remote search: the one option may still be the previous query's result
       event.preventDefault();
       onSelect(visibleOptions[0].value);
     }

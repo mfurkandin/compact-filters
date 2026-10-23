@@ -79,6 +79,10 @@ describe("FilterBar option search", () => {
     assert.deepEqual(queries, ["ada"]);
     assert.deepEqual(bar.options(), ["Can Demir"], "options are not filtered here");
 
+    // "Can Demir" is still the previous query's result, Enter must not pick it
+    await bar.press("Enter");
+    assert.deepEqual(bar.changes, []);
+
     await bar.close();
     assert.equal(document.querySelector("[role='dialog']"), null);
     assert.deepEqual(queries, ["ada", ""]);
